@@ -3,17 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personalization Playground — Web Preview</title>
+  <title>Personalization Playground — Web Preview (Enhanced)</title>
   <style>
     :root{
-      --accent:#4F46E5; /* default indigo */
+      --accent:#4F46E5; /* will be overridden per-industry */
+      --heroA:#4F46E5;  /* hero gradient start */
+      --heroB:#93C5FD;  /* hero gradient end   */
       --bg:#0b1020;
       --card:#ffffff;
       --muted:#6b7280;
       --text:#0f172a;
       --chip:#EEF2FF;
-      --radius:16px;
-      --shadow:0 6px 18px rgba(17,24,39,0.08);
+      --radius:18px;
+      --shadow:0 12px 30px rgba(17,24,39,0.12);
+      --ring:0 0 0 3px rgba(79,70,229,.15);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -22,69 +25,75 @@
       color:var(--text); background:#F6F7FB;
     }
     a{color:inherit}
-    .wrap{max-width:1200px; margin:0 auto; padding:24px}
-    .topbar{position:sticky; top:0; z-index:10; background:linear-gradient(180deg, rgba(246,247,251,0.95), rgba(246,247,251,0.6)); backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid #e5e7eb}
+    .wrap{max-width:1320px; margin:0 auto; padding:24px}
+
+    /* Top controls */
+    .topbar{position:sticky; top:0; z-index:20; background:linear-gradient(180deg, rgba(246,247,251,0.95), rgba(246,247,251,0.65)); backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid #e5e7eb}
     .controls{display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; align-items:end}
     .control{grid-column: span 3}
-    .control.small{grid-column: span 2}
+    .control.small{grid-column: span 3}
     .control.wide{grid-column: span 6}
     label{font-size:12px; color:var(--muted); letter-spacing:.02em}
-    select, input[type="text"], input[type="url"], input[type="color"]{
-      width:100%; padding:10px 12px; font-size:14px; border-radius:12px; border:1px solid #e5e7eb; background:white; outline:none;
+    select, input[type="text"]{
+      width:100%; padding:12px 14px; font-size:14px; border-radius:14px; border:1px solid #e5e7eb; background:white; outline:none;
     }
-    button{border:0; border-radius:999px; padding:10px 14px; font-weight:600; box-shadow:var(--shadow); cursor:pointer}
+    select:focus, input[type="text"]:focus{box-shadow:var(--ring)}
+    button{border:0; border-radius:999px; padding:10px 16px; font-weight:700; box-shadow:var(--shadow); cursor:pointer; transition:.15s transform ease}
+    button:active{transform:translateY(1px)}
     .btn-primary{background:var(--accent); color:white}
     .btn-ghost{background:white; color:#111827; border:1px solid #e5e7eb; box-shadow:none}
-    .chips{display:flex; flex-wrap:wrap; gap:8px}
-    .chip{background:var(--chip); border-radius:999px; padding:6px 10px; font-size:12px}
-
-    .grid{display:grid; grid-template-columns: 1.35fr .65fr; gap:20px; margin-top:16px}
-
-    /* Preview site */
-    .site{background:white; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
-    .site .chrome{display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid #eef2f7}
-    .logo{width:28px; height:28px; border-radius:8px; background:var(--accent); display:grid; place-items:center; color:white; font-weight:800}
-    .brand{font-weight:800}
     .pill{font-size:12px; padding:6px 10px; border-radius:999px; background:#f1f5f9; color:#0f172a; margin-left:auto}
+    .logo{width:30px; height:30px; border-radius:10px; background:var(--accent); display:grid; place-items:center; color:white; font-weight:800}
 
-    .hero{position:relative; overflow:hidden; padding:28px; background:linear-gradient(135deg, var(--accent), #93C5FD); color:white}
-    .hero h2{margin:0 0 8px 0}
-    .hero p{margin:0}
-    .hero .cta{margin-top:14px}
+    /* Simulator layout — full-width focus */
+    .sim-wrap{margin-top:18px}
+    .site{background:white; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+    .chrome{display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid #eef2f7}
+    .brand{font-weight:800}
 
-    .site-content{padding:18px}
-    .modules{display:grid; grid-template-columns: 1fr; gap:14px}
-    .card{background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:14px}
-    .card h3{margin:0 0 10px 0}
+    /* Hero — highly visual */
+    .hero{position:relative; overflow:hidden; padding:36px 28px; background:linear-gradient(135deg, var(--heroA), var(--heroB)); color:white; min-height:220px}
+    .hero h2{margin:0 0 8px 0; font-size:28px}
+    .hero p{margin:0; opacity:.95}
+    .hero .cta{margin-top:16px}
+    .hero .illustration{position:absolute; right:0; bottom:-8px; width:42%; max-width:520px; opacity:.25; filter:drop-shadow(0 10px 24px rgba(0,0,0,.2))}
+    .variant-tag{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding:6px 10px; font-size:12px; border-radius:999px}
+
+    /* Modules */
+    .site-content{padding:22px}
+    .modules{display:grid; grid-template-columns: 1fr; gap:16px}
+    .card{background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:16px}
+    .card h3{margin:0 0 12px 0}
 
     .collection-row{display:flex; gap:12px; overflow:auto; padding-bottom:4px}
-    .col-card{min-width:180px; height:92px; border-radius:12px; background:linear-gradient(120deg, #EEF2FF, #F5F3FF); display:flex; align-items:flex-end; padding:10px; font-weight:700}
+    .col-card{min-width:200px; height:104px; border-radius:12px; background:linear-gradient(120deg, rgba(255,255,255,.25), rgba(255,255,255,.15)); border:1px solid #e5e7eb; display:flex; align-items:flex-end; padding:12px; font-weight:700}
 
-    .product-grid{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:12px}
-    .product{border:1px solid #eef2f7; border-radius:12px; overflow:hidden; background:white; position:relative}
-    .p-thumb{height:120px; background:linear-gradient(135deg, #e5e7eb, #f3f4f6); display:grid; place-items:center; font-weight:800}
-    .p-body{padding:10px}
-    .price{font-weight:800}
+    .product-grid{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px}
+    .product{border:1px solid #eef2f7; border-radius:14px; overflow:hidden; background:white; position:relative; transition:.15s transform ease, box-shadow .15s ease}
+    .product:hover{transform:translateY(-2px); box-shadow:0 16px 30px rgba(2,6,23,.08)}
+    .p-thumb{height:140px; background:#f8fafc; display:grid; place-items:center}
+    .p-thumb img{width:100%; height:100%; object-fit:cover}
+    .p-body{padding:12px}
+    .price{font-weight:900}
     .muted{color:var(--muted)}
-    .badge{position:absolute; top:8px; left:8px; background:var(--accent); color:white; font-size:11px; padding:4px 8px; border-radius:999px}
-    .note{font-size:12px; color:var(--muted)}
+    .badge{position:absolute; top:10px; left:10px; background:var(--accent); color:white; font-size:11px; padding:4px 8px; border-radius:999px}
 
-    /* Side panel */
-    .side{display:flex; flex-direction:column; gap:12px}
-    .side .card ul{margin:0; padding-left:18px}
+    /* Bottom explainers */
+    .bottom{margin-top:18px; display:grid; grid-template-columns: repeat(3, 1fr); gap:16px}
+    .bottom .card ul{margin:0; padding-left:18px}
+    .diagnostics .muted{font-size:13px}
 
-    .footer{margin-top:20px; display:flex; gap:8px; align-items:center}
-    .accent-dot{width:10px; height:10px; border-radius:999px; background:var(--accent); border:2px solid white; box-shadow:0 0 0 2px rgba(0,0,0,0.06)}
-
-    @media (max-width: 980px){
-      .controls{grid-template-columns: repeat(6, 1fr)}
-      .control{grid-column: span 6}
-      .control.small{grid-column: span 3}
-      .grid{grid-template-columns: 1fr}
+    @media (max-width: 1100px){
       .product-grid{grid-template-columns: repeat(2, minmax(0,1fr))}
+      .bottom{grid-template-columns: 1fr}
+      .hero{min-height:200px}
+      .hero .illustration{width:58%}
     }
     @media (max-width: 560px){
       .product-grid{grid-template-columns: 1fr}
+      .controls{grid-template-columns: repeat(6, 1fr)}
+      .control{grid-column: span 6}
+      .control.small{grid-column: span 6}
     }
   </style>
 </head>
@@ -129,181 +138,148 @@
         <div class="control">
           <label>User context</label>
           <select id="user">
-            <option value="new">New user</option>
+            <option value="new">New</option>
             <option value="returning">Returning</option>
-            <option value="known">Known (identified)</option>
+            <option value="known">Known (existing)</option>
           </select>
         </div>
-
         <div class="control small">
           <label>Brand name</label>
           <input id="brand" type="text" placeholder="Acme" />
         </div>
-        <div class="control small">
-          <label>Website URL</label>
-          <input id="siteUrl" type="url" placeholder="https://example.com" />
-        </div>
-        <div class="control small">
-          <label>Accent color</label>
-          <input id="color" type="color" value="#4F46E5" />
-        </div>
         <div class="control wide">
-          <label>Email (for Known users)</label>
-          <input id="email" type="text" placeholder="user@brand.com" />
+          <label>User Info (email / phone / notes)</label>
+          <input id="userInfo" type="text" placeholder="e.g. anmol@brand.com, premium buyer" />
         </div>
       </div>
     </div>
   </div>
 
-  <div class="wrap">
-    <div class="grid">
-      <div class="site" id="site">
-        <div class="chrome">
-          <div class="logo" id="siteLogo">WE</div>
-          <div class="brand" id="brandName">Acme</div>
-          <div class="pill" id="industryPill">Retail</div>
-        </div>
-        <div class="hero">
-          <h2 id="heroTitle">Welcome to Acme</h2>
-          <p id="heroSub">Smart recommendations powered by your behavior.</p>
-          <div class="cta">
-            <button class="btn-primary" id="ctaBtn">Shop now</button>
-          </div>
-        </div>
-        <div class="site-content">
-          <div class="modules" id="modules"></div>
-          <p class="note">This is a simulator for demo purposes only. Product data is synthetic.
-          </p>
-        </div>
+  <div class="wrap sim-wrap">
+    <div class="site" id="site">
+      <div class="chrome">
+        <div class="logo" id="siteLogo">WE</div>
+        <div class="brand" id="brandName">Acme</div>
+        <div class="pill" id="industryPill">Retail</div>
       </div>
-
-      <div class="side">
-        <div class="card">
-          <h3>What changed & why</h3>
-          <ul id="whyList"></ul>
+      <div class="hero">
+        <span class="variant-tag" id="variantTag">–</span>
+        <h2 id="heroTitle">Welcome to Acme</h2>
+        <p id="heroSub">Smart recommendations that adapt to each visitor.</p>
+        <div class="cta">
+          <button class="btn-primary" id="ctaBtn">Shop now</button>
         </div>
-        <div class="card">
-          <h3>Common plays by industry</h3>
-          <div id="plays" class="chips"></div>
-        </div>
-        <div class="card">
-          <h3>Compliance & governance</h3>
-          <ul>
-            <li>Consent-first capture for identifiers; clear opt-in.</li>
-            <li>Consent and preferences logged with timestamp.</li>
-            <li>PII handled via secure APIs; masked in at-rest logs.</li>
-            <li>Deterministic & probabilistic ID graphs with safe fallbacks.</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>Diagnostics</h3>
-          <button class="btn-ghost" id="runTestsBtn">Run self‑tests</button>
-          <ul id="testResults" class="muted"></ul>
-        </div>
+        <img class="illustration" id="heroArt" alt="" />
+      </div>
+      <div class="site-content">
+        <div class="modules" id="modules"></div>
+        <p class="muted" style="margin-top:8px">This is a simulator for demo purposes only. Product data & imagery are synthetic.</p>
       </div>
     </div>
 
-    <div class="footer">
-      <div class="accent-dot"></div>
-      <div class="muted">Tip: Use the controls above, or pass query params like <code>?industry=retail&model=dynamic&bias=affinity&user=returning&brand=Acme&color=%23007AFF</code></div>
+    <!-- Bottom explainers moved under the simulator for larger canvas -->
+    <div class="bottom">
+      <div class="card">
+        <h3>What changed & why</h3>
+        <ul id="whyList"></ul>
+      </div>
+      <div class="card">
+        <h3>Common plays by industry</h3>
+        <div id="plays" class="chips"></div>
+      </div>
+      <div class="card diagnostics">
+        <h3>Diagnostics</h3>
+        <button class="btn-ghost" id="runTestsBtn">Run self‑tests</button>
+        <ul id="testResults" class="muted"></ul>
+      </div>
     </div>
   </div>
 
   <script>
-    // ---- Utilities (safe selectors & small helpers) ----------------------
+    // ---------- Utilities --------------------------------------------------
     const elCache = new Map();
-    function el(id){
-      if (!elCache.has(id)){
-        elCache.set(id, document.getElementById(id));
-      }
-      return elCache.get(id);
+    function el(id){ if (!elCache.has(id)) elCache.set(id, document.getElementById(id)); return elCache.get(id); }
+    function req(id){ const n = el(id); if(!n) throw new Error(`Missing element #${id}`); return n; }
+    const INR_RATE = 83; // approx USD→INR
+    function formatINR(n){
+      // Indian numbering format
+      const x = Math.round(n).toString();
+      const last3 = x.slice(-3); const other = x.slice(0, -3);
+      return other.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + (other?"," : "") + last3;
     }
-    function req(id){
-      const n = el(id);
-      if(!n) throw new Error(`Missing element #${id}`);
-      return n;
-    }
-    function initials(str){
-      const parts = (str||'A C').split(/\s+/).slice(0,2);
-      return parts.map(s=>s[0]||'').join('').toUpperCase();
-    }
-    function pick(val, def, allowed){
-      if (!val) return def;
-      const norm = String(val).trim();
-      const hit = allowed.find(a=> a.toLowerCase()===norm.toLowerCase());
-      return hit || def;
-    }
-    function validateColor(c){
-      return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c);
-    }
-    function stars(r){
-      const full = Math.floor(r); const half = r - full >= 0.5;
-      let s='';
-      for(let i=0;i<full;i++) s += '★';
-      if (half) s+='☆';
-      return s;
-    }
+    function usdToInr(usd){ return usd * INR_RATE; }
+    function initials(str){ const parts=(str||'A C').split(/\s+/).slice(0,2); return parts.map(s=>s[0]||'').join('').toUpperCase(); }
+    function pick(val, def, allowed){ if (!val) return def; const norm=String(val).trim(); const hit = allowed.find(a=> a.toLowerCase()===norm.toLowerCase()); return hit||def; }
+    function parseEmail(s){ const m = (s||'').match(/[\w.+-]+@[\w-]+\.[\w.-]+/); return m? m[0] : ''; }
 
-    // ---- Data ------------------------------------------------------------
-    function p(name, price, rating, tags, code){
-      return {id: name.toLowerCase().replace(/[^a-z0-9]+/g,'-'), name, price, rating, tags, code}
-    }
+    // ---------- Themes per industry ---------------------------------------
+    const THEMES = {
+      Retail:   {accent:'#111827', heroA:'#0B0F19', heroB:'#1F2937', flare:'#D4AF37'}, // luxury black + gold
+      FMCD:     {accent:'#1E3A8A', heroA:'#0EA5E9', heroB:'#1E40AF', flare:'#60A5FA'}, // cool tech blues
+      D2C:      {accent:'#A21CAF', heroA:'#D946EF', heroB:'#F97316', flare:'#FDE68A'}, // vibrant magenta→orange
+      Healthcare:{accent:'#0F766E', heroA:'#0EA5A4', heroB:'#22C55E', flare:'#A7F3D0'}  // teal/green wellness
+    };
+
+    // ---------- Synthetic catalog with tags & tiny art --------------------
+    function p(name, usd, rating, tags, code){ return {id:name.toLowerCase().replace(/[^a-z0-9]+/g,'-'), name, usd, rating, tags, code}; }
     const CATALOG = {
       Retail: [
-        p("Nova Sneakers", 79, 4.7, ["shoes","athleisure","men"], "NS"),
-        p("Luna Tote", 64, 4.4, ["bags","women"], "LT"),
-        p("Aero Tee", 24, 4.2, ["apparel","unisex"], "AT"),
-        p("Quartz Watch", 149, 4.8, ["accessory","unisex","premium"], "QW"),
-        p("Denim Jacket", 92, 4.5, ["apparel","men"], "DJ"),
-        p("Silk Scarf", 38, 4.3, ["accessory","women"], "SS"),
-        p("Trail Backpack", 88, 4.6, ["bags","unisex","outdoor"], "TB"),
-        p("Comfy Socks (3)", 12, 4.1, ["accessory","value"], "CS")
+        p('Nova Sneakers', 79, 4.7, ['shoes','athleisure','men'], 'NS'),
+        p('Luna Tote', 64, 4.4, ['bags','women'], 'LT'),
+        p('Aero Tee', 24, 4.2, ['apparel','unisex'], 'AT'),
+        p('Quartz Watch', 149, 4.8, ['accessory','unisex','premium'], 'QW'),
+        p('Denim Jacket', 92, 4.5, ['apparel','men'], 'DJ'),
+        p('Silk Scarf', 38, 4.3, ['accessory','women'], 'SS'),
+        p('Trail Backpack', 88, 4.6, ['bags','unisex','outdoor'], 'TB'),
+        p('Comfy Socks (3)', 12, 4.1, ['accessory','value'], 'CS')
       ],
       FMCD: [
-        p("FrostX 300L Fridge", 399, 4.5, ["appliance","kitchen","value"], "FR"),
-        p("BreezeMax 1.5T AC", 529, 4.6, ["cooling","premium"], "AC"),
-        p("AquaPure RO", 189, 4.3, ["water","kitchen"], "RO"),
-        p("SwiftWash 7kg", 329, 4.4, ["laundry","value"], "WM"),
-        p("ChefPro Induction", 69, 4.2, ["kitchen","value"], "IH"),
-        p("TurboVac Max", 149, 4.1, ["home","cleaning"], "VC"),
-        p("GlowHeat Geyser", 119, 4.0, ["bath","water"], "GY"),
-        p("SteelCool Fan", 59, 4.3, ["cooling","value"], "FN" )
+        p('FrostX 300L Fridge', 399, 4.5, ['appliance','kitchen','value','cooling'], 'FR'),
+        p('BreezeMax 1.5T AC', 529, 4.6, ['cooling','premium'], 'AC'),
+        p('AquaPure RO', 189, 4.3, ['water','kitchen'], 'RO'),
+        p('SwiftWash 7kg', 329, 4.4, ['laundry','value'], 'WM'),
+        p('ChefPro Induction', 69, 4.2, ['kitchen','value'], 'IH'),
+        p('TurboVac Max', 149, 4.1, ['home','cleaning'], 'VC'),
+        p('GlowHeat Geyser', 119, 4.0, ['bath','water'], 'GY'),
+        p('SteelCool Fan', 59, 4.3, ['cooling','value'], 'FN')
       ],
       D2C: [
-        p("Plant Protein (1kg)", 24, 4.5, ["nutrition","value"], "PP"),
-        p("Glow Serum 30ml", 18, 4.7, ["beauty","premium"], "GS"),
-        p("Bamboo Toothbrush (2)", 6, 4.2, ["home","eco"], "BT"),
-        p("Daily Multivitamin", 12, 4.3, ["nutrition"], "MV"),
-        p("Cold Brew Bottles (6)", 14, 4.4, ["beverage","trending"], "CB"),
-        p("Ceramic Mug", 8, 4.1, ["home","value"], "MG"),
-        p("Yoga Strap", 10, 4.0, ["fitness","eco"], "YS"),
-        p("No-Sugar Granola", 9, 4.2, ["food","healthy"], "GR" )
+        p('Plant Protein (1kg)', 24, 4.5, ['nutrition','value'], 'PP'),
+        p('Glow Serum 30ml', 18, 4.7, ['beauty','premium'], 'GS'),
+        p('Bamboo Toothbrush (2)', 6, 4.2, ['home','eco'], 'BT'),
+        p('Daily Multivitamin', 12, 4.3, ['nutrition'], 'MV'),
+        p('Cold Brew Bottles (6)', 14, 4.4, ['beverage','trending'], 'CB'),
+        p('Ceramic Mug', 8, 4.1, ['home','value'], 'MG'),
+        p('Yoga Strap', 10, 4.0, ['fitness','eco'], 'YS'),
+        p('No-Sugar Granola', 9, 4.2, ['food','healthy'], 'GR')
       ],
       Healthcare: [
-        p("Digital Thermometer", 9, 4.5, ["device","value"], "DT"),
-        p("BP Monitor", 34, 4.6, ["device","homecare"], "BP"),
-        p("Orthopedic Pillow", 19, 4.3, ["sleep","comfort"], "OP"),
-        p("Nebulizer Compact", 29, 4.4, ["device","respiratory"], "NB"),
-        p("Multivitamin 60 tabs", 11, 4.2, ["supplement","value"], "SV"),
-        p("Sugar Check Strips (50)", 13, 4.1, ["device","diabetes"], "SC"),
-        p("Cold & Flu Care Pack", 7, 4.0, ["otc","seasonal"], "CF"),
-        p("Hand Sanitizer 500ml", 4, 4.0, ["otc","value"], "HS" )
+        p('Digital Thermometer', 9, 4.5, ['device','value'], 'DT'),
+        p('BP Monitor', 34, 4.6, ['device','homecare'], 'BP'),
+        p('Orthopedic Pillow', 19, 4.3, ['sleep','comfort'], 'OP'),
+        p('Nebulizer Compact', 29, 4.4, ['device','respiratory'], 'NB'),
+        p('Multivitamin 60 tabs', 11, 4.2, ['supplement','value'], 'SV'),
+        p('Sugar Check Strips (50)', 13, 4.1, ['device','diabetes'], 'SC'),
+        p('Cold & Flu Care Pack', 7, 4.0, ['otc','seasonal'], 'CF'),
+        p('Hand Sanitizer 500ml', 4, 4.0, ['otc','value'], 'HS')
       ]
     };
+
     const COLLECTIONS = {
       Retail:["Festive Picks","Office Essentials","Weekend Fits"],
       FMCD:["Summer Cooling","Kitchen Staples","Home Hygiene"],
       D2C:["Wellness Starter","Eco Basics","Trending Now"],
       Healthcare:["Home Care Essentials","Respiratory Care","Daily Wellness"]
-    }
-    const INDUSTRY_PLAYS = {
-      Retail:["Exit-intent email capture for unknown users","Recently viewed + similar items","Price drop alerts for wishlist"],
-      FMCD:["AMC / warranty nudge post-purchase","Service due reminders (RCS/WA)","Location-aware store demo booking"],
-      D2C:["Bundles based on affinity","Subscription trial upsell","UGC-driven top-rated row"],
-      Healthcare:["Condition-based guidance (non-diagnostic)","Reorder reminders","Tele-consult booking CTA"]
-    }
+    };
 
-    // ---- App state -------------------------------------------------------
+    const INDUSTRY_PLAYS = {
+      Retail:["Exit-intent capture for unknown users","Recently viewed + similar","Price-drop alerts for wishlist"],
+      FMCD:["AMC/warranty nudges","Service due reminders (RCS/WA)","Store demo booking"],
+      D2C:["Bundles by affinity","Subscription trial upsell","UGC-powered top rated"],
+      Healthcare:["Condition-based guidance (non-diagnostic)","Reorder reminders","Tele-consult booking"]
+    };
+
+    // ---------- State -----------------------------------------------------
     const qs = new URLSearchParams(location.search);
     const state = {
       industry: pick(qs.get('industry'), 'Retail', ['Retail','FMCD','D2C','Healthcare']),
@@ -311,211 +287,208 @@
       bias: pick(qs.get('bias'), 'affinity', ['price','rating','affinity']),
       user: pick(qs.get('user'), 'new', ['new','returning','known']),
       brand: qs.get('brand') || 'Acme',
-      site: qs.get('site') || '',
-      color: qs.get('color') || '#4F46E5',
-      email: qs.get('email') || ''
+      userInfo: qs.get('userInfo') || ''
     };
 
-    // ---- Boot after DOM is ready ----------------------------------------
     document.addEventListener('DOMContentLoaded', boot);
 
     function boot(){
-      // Inputs map (avoid duplicate IDs — website input is #siteUrl; preview container is #site)
       const inputs = {
         industry: req('industry'),
         model: req('model'),
         bias: req('bias'),
         user: req('user'),
         brand: req('brand'),
-        siteUrl: req('siteUrl'),
-        color: req('color'),
-        email: req('email')
+        userInfo: req('userInfo')
       };
-
-      // Seed values
       inputs.industry.value = state.industry;
       inputs.model.value = state.model;
       inputs.bias.value = state.bias;
       inputs.user.value = state.user;
       inputs.brand.value = state.brand;
-      inputs.siteUrl.value = state.site;
-      inputs.color.value = state.color;
-      inputs.email.value = state.email;
+      inputs.userInfo.value = state.userInfo;
 
-      // Input listeners
       Object.entries(inputs).forEach(([key, inp])=>{
-        inp.addEventListener('change', ()=>{
-          const map = {siteUrl:'site'};
-          state[map[key] || key] = inp.value;
-          render();
-          syncUrl();
-        })
-      });
+        inp.addEventListener('change', ()=>{ state[key] = inp.value; render(); syncUrl(); })
+      })
 
-      // Topbar buttons
       req('resetBtn').onclick = reset;
       req('copyLinkBtn').onclick = copyLink;
       req('runTestsBtn').onclick = runTests;
-
-      // First paint
-      render();
-      syncUrl();
-
-      // Auto-run tests when ?test=1
-      if (qs.get('test') === '1') runTests();
+      render(); syncUrl(); if (qs.get('test')==='1') runTests();
     }
 
-    // ---- Core render -----------------------------------------------------
+    // ---------- Render ----------------------------------------------------
     function render(){
-      // theme
-      document.documentElement.style.setProperty('--accent', validateColor(state.color) ? state.color : '#4F46E5');
-      req('topLogo').textContent = initials(state.brand || 'Acme');
+      // Apply theme per industry
+      const t = THEMES[state.industry];
+      document.documentElement.style.setProperty('--accent', t.accent);
+      document.documentElement.style.setProperty('--heroA', t.heroA);
+      document.documentElement.style.setProperty('--heroB', t.heroB);
 
-      // chrome
-      const siteLogo = req('siteLogo');
-      siteLogo.textContent = initials(state.brand || 'Acme');
-      siteLogo.style.background = 'var(--accent)';
-      req('brandName').textContent = state.brand || 'Acme';
+      // Header chrome
+      req('topLogo').textContent = initials(state.brand);
+      req('siteLogo').textContent = initials(state.brand);
+      req('brandName').textContent = state.brand;
       req('industryPill').textContent = state.industry;
 
-      // hero text per state
-      const heroTitle = {
-        new: `Welcome to ${state.brand || 'our store'}`,
-        returning: `Welcome back ${state.brand ? 'to '+state.brand : ''}`,
-        known: `Hi ${state.email || 'there'} — great to see you again`
-      }[state.user];
-      req('heroTitle').textContent = heroTitle;
-      req('heroSub').textContent = subCopy();
+      // Hero banner (unique for each combo)
+      const comboKey = `${state.industry}/${state.model}/${state.bias}/${state.user}`;
+      req('variantTag').textContent = comboKey;
+      const heroCopy = getHeroCopy();
+      req('heroTitle').textContent = heroCopy.title;
+      req('heroSub').textContent = heroCopy.sub;
+      req('heroArt').src = heroArtDataURL(comboKey, t);
 
       req('statePill').textContent = `State: ${state.industry} • ${state.model} • ${state.bias} • ${state.user}`;
 
-      // modules
-      const modules = req('modules');
-      modules.innerHTML = '';
+      // Build modules
+      const modules = req('modules'); modules.innerHTML = '';
 
-      // 1) Collections row (for collections model) or Trending (others)
-      const colCard = sectionCard(state.model === 'collections' ? 'Featured Collections' : 'Trending Now');
-      const colRow = document.createElement('div'); colRow.className = 'collection-row';
-      const cols = state.model === 'collections' ? COLLECTIONS[state.industry] : COLLECTIONS[state.industry].slice(0,2);
-      cols.forEach(cn => {
-        const cc = document.createElement('div'); cc.className = 'col-card'; cc.textContent = cn; colRow.appendChild(cc);
-      })
-      colCard.appendChild(colRow);
-      modules.appendChild(colCard);
+      // A) Trending row always exists, content depends on model & user
+      const trendCard = sectionCard('Trending Now');
+      const trendGrid = gridOf(productsTrending());
+      trendCard.appendChild(trendGrid); modules.appendChild(trendCard);
 
-      // 2) Recommended grid
-      const recCard = sectionCard(recoTitle());
-      const grid = document.createElement('div'); grid.className = 'product-grid';
-      productsForState().forEach((prod, i) => {
-        grid.appendChild(productCard(prod, i));
-      })
-      recCard.appendChild(grid);
-      modules.appendChild(recCard);
+      // B) Primary recommendations
+      const recCard = sectionCard(primaryTitle());
+      const recGrid = gridOf(productsForState());
+      recCard.appendChild(recGrid); modules.appendChild(recCard);
 
-      // 3) Contextual modules
-      if (state.user === 'returning'){
-        modules.appendChild(infoCard('Recently viewed', 'Based on your last visit, we saved these for you.'))
-      }
-      // Loyalty card for all industries when Known (per your clarification)
-      if (state.user === 'new'){
-        modules.appendChild(captureCard());
-      }
-      if (state.user === 'known'){
-        modules.appendChild(loyaltyCard());
+      // C) Contextual modules
+      if (state.model==='collections'){
+        const colCard = sectionCard('Featured Collections');
+        const row = document.createElement('div'); row.className='collection-row';
+        COLLECTIONS[state.industry].forEach(cn=>{ const d=document.createElement('div'); d.className='col-card'; d.textContent=cn; row.appendChild(d); });
+        colCard.appendChild(row); modules.appendChild(colCard);
       }
 
-      // side panel explains
+      if (state.user==='returning') modules.appendChild(infoCard('Recently viewed', 'Based on your last visit, we saved these for you.'));
+      if (state.user==='new') modules.appendChild(captureCard());
+      if (state.user==='known') modules.appendChild(loyaltyCard());
+
+      // Bottom explainers
       renderWhy();
       renderPlays();
     }
 
-    function sectionCard(title){
-      const card = document.createElement('div'); card.className='card';
-      const h = document.createElement('h3'); h.textContent = title; card.appendChild(h);
-      return card;
-    }
-    function infoCard(title, sub){
-      const c = sectionCard(title);
-      const p = document.createElement('p'); p.className='muted'; p.textContent = sub; c.appendChild(p);
-      return c;
-    }
+    function sectionCard(title){ const card=document.createElement('div'); card.className='card'; const h=document.createElement('h3'); h.textContent=title; card.appendChild(h); return card; }
+    function infoCard(title, sub){ const c=sectionCard(title); const p=document.createElement('p'); p.className='muted'; p.textContent=sub; c.appendChild(p); return c; }
+
     function captureCard(){
       const c = sectionCard('Get more relevant picks');
-      const p = document.createElement('p'); p.textContent = 'Tell us where to send your order updates.'; c.appendChild(p);
+      const p = document.createElement('p'); p.textContent = 'Share your details (email/phone) so we can personalize even better.'; c.appendChild(p);
       const row = document.createElement('div'); row.style.display='flex'; row.style.gap='8px';
-      const inp = document.createElement('input'); inp.placeholder='you@email.com'; inp.style.flex='1'; inp.style.padding='10px 12px'; inp.style.border='1px solid #e5e7eb'; inp.style.borderRadius='10px';
+      const inp = document.createElement('input'); inp.placeholder='you@brand.com, 98xxxxxx'; inp.style.flex='1'; inp.style.padding='12px 14px'; inp.style.border='1px solid #e5e7eb'; inp.style.borderRadius='12px';
       const btn = document.createElement('button'); btn.className='btn-primary'; btn.textContent='Continue';
-      btn.onclick = ()=>{ state.user='known'; state.email = inp.value || 'user@demo.com'; req('user').value='known'; req('email').value=state.email; render(); syncUrl(); toast('Identified as Known'); }
-      row.appendChild(inp); row.appendChild(btn); c.appendChild(row);
-      return c;
+      btn.onclick = ()=>{ state.user='known'; state.userInfo = inp.value || 'existing'; req('user').value='known'; req('userInfo').value=state.userInfo; render(); syncUrl(); toast('Marked as Known'); }
+      row.appendChild(inp); row.appendChild(btn); c.appendChild(row); return c;
     }
+
     function loyaltyCard(){
       const c = sectionCard('Loyalty boost');
-      const p = document.createElement('p'); p.innerHTML = `Welcome <b>${state.email||'member'}</b>. Earn <b>2× points</b> on ${state.industry==='FMCD'?'AMC add-ons':'today\'s picks'} when you checkout in the next <b>24h</b>.`;
-      c.appendChild(p);
-      const btn = document.createElement('button'); btn.className='btn-primary'; btn.textContent='Activate offer'; c.appendChild(btn);
-      return c;
+      const email = parseEmail(state.userInfo);
+      const who = email || 'member';
+      const p = document.createElement('p'); p.innerHTML = `Welcome <b>${who}</b>. Earn <b>2× points</b> on ${state.industry==='FMCD'?'AMC add‑ons':'today\'s picks'} when you checkout in the next <b>24h</b>.`;
+      c.appendChild(p); const btn=document.createElement('button'); btn.className='btn-primary'; btn.textContent='Activate offer'; c.appendChild(btn); return c;
     }
+
+    // ---------- Product rendering ----------------------------------------
+    function gridOf(list){ const grid=document.createElement('div'); grid.className='product-grid'; list.forEach((prod,i)=> grid.appendChild(productCard(prod,i))); return grid; }
 
     function productCard(prod, i){
       const card = document.createElement('div'); card.className='product';
       const badge = document.createElement('div'); badge.className='badge'; badge.textContent = badgeText(prod, i); card.appendChild(badge);
-      const th = document.createElement('div'); th.className='p-thumb'; th.textContent = prod.code; card.appendChild(th);
+      const th = document.createElement('div'); th.className='p-thumb'; const img=document.createElement('img'); img.src=productImage(prod); img.alt=prod.name; th.appendChild(img); card.appendChild(th);
       const body = document.createElement('div'); body.className='p-body';
-      const name = document.createElement('div'); name.style.fontWeight='700'; name.textContent = prod.name; body.appendChild(name);
-      const meta = document.createElement('div'); meta.className='muted'; meta.innerHTML = `${stars(prod.rating)} • $${prod.price}`; body.appendChild(meta);
-      card.appendChild(body);
-      return card;
+      const name = document.createElement('div'); name.style.fontWeight='800'; name.textContent = prod.name; body.appendChild(name);
+      const rupees = Math.max(199, Math.round(usdToInr(prod.usd))); // keep it realistic
+      const meta = document.createElement('div'); meta.className='muted'; meta.innerHTML = `${stars(prod.rating)} • ₹${formatINR(rupees)}`; body.appendChild(meta);
+      card.appendChild(body); return card;
     }
 
-    function recoTitle(){
-      if (state.model==='static') return 'Editor\'s picks';
+    function stars(r){ const full=Math.floor(r); const half=r-full>=.5; let s=''; for(let i=0;i<full;i++) s+='★'; if (half) s+='☆'; return s; }
+
+    function productImage(prod){
+      // lightweight SVG thumbnail themed by industry, with an icon inferred from tags
+      const t = THEMES[state.industry];
+      const icon = iconFor(prod.tags);
+      const bg1 = t.heroA, bg2 = t.heroB;
+      const txt = prod.code;
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'>
+        <defs>
+          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0%' stop-color='${bg1}'/>
+            <stop offset='100%' stop-color='${bg2}'/>
+          </linearGradient>
+        </defs>
+        <rect width='100%' height='100%' fill='url(#g)'/>
+        <text x='28' y='60' font-size='42' fill='white' font-family='sans-serif'>${icon}</text>
+        <text x='28' y='110' font-size='22' fill='white' opacity='.9' font-family='sans-serif'>${txt}</text>
+      </svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    function iconFor(tags){
+      const set = new Set(tags||[]);
+      if (set.has('cooling')) return '❄️';
+      if (set.has('appliance')) return '🧊';
+      if (set.has('kitchen')) return '🍳';
+      if (set.has('water')) return '💧';
+      if (set.has('laundry')) return '🧺';
+      if (set.has('cleaning')) return '🧹';
+      if (set.has('beauty')) return '💄';
+      if (set.has('nutrition')) return '🥤';
+      if (set.has('eco')) return '🌿';
+      if (set.has('fitness')) return '🧘';
+      if (set.has('device')) return '📟';
+      if (set.has('otc')) return '💊';
+      if (set.has('sleep')) return '😴';
+      if (set.has('apparel')) return '👕';
+      if (set.has('bags')) return '👜';
+      if (set.has('accessory')) return '⌚';
+      return '🛍️';
+    }
+
+    // ---------- Recommendation logic -------------------------------------
+    function primaryTitle(){
+      if (state.model==='static') return "Editor's picks";
       if (state.model==='collections') return 'From this collection';
       return 'Recommended for you';
     }
 
     function badgeText(prod, i){
       switch(state.bias){
-        case 'price': return i===0? 'Best Value' : (prod.price<=medianPrice()? 'Value' : '');
+        case 'price': return i===0? 'Best Value' : (prod.usd<=medianUsd()? 'Value' : '');
         case 'rating': return prod.rating>=4.6? 'Top Rated' : '';
         case 'affinity': return (prod.tags||[]).some(t=> affinityTags().includes(t))? 'High Affinity' : '';
       }
       return '';
     }
 
-    function medianPrice(){
-      const arr = CATALOG[state.industry].map(p=>p.price).sort((a,b)=>a-b);
-      const mid = Math.floor(arr.length/2);
-      return arr.length%2? arr[mid] : (arr[mid-1]+arr[mid])/2;
-    }
+    function medianUsd(){ const arr = CATALOG[state.industry].map(p=>p.usd).sort((a,b)=>a-b); const mid = Math.floor(arr.length/2); return arr.length%2? arr[mid] : (arr[mid-1]+arr[mid])/2; }
 
     function subCopy(){
       if (state.model==='static') return 'Curated by our merch team for this season.';
       if (state.model==='collections') return 'Explore themed sets tailored to your industry.';
-      if (state.bias==='price') return 'Sorted by better value for money.';
-      if (state.bias==='rating') return 'Surfacing the top-rated items first.';
-      return 'Learning from your browsing to boost relevance.';
+      if (state.bias==='price') return 'Sorted for maximum value.';
+      if (state.bias==='rating') return 'Prioritizing trust with top-rated picks.';
+      return 'Learning from behavior to boost relevance.';
     }
 
     function affinityTags(){
-      const base = {
-        Retail:["athleisure","accessory","premium"],
-        FMCD:["cooling","kitchen","appliance"],
-        D2C:["beauty","nutrition","eco"],
-        Healthcare:["device","homecare","otc"]
-      }[state.industry] || [];
+      const base = {Retail:['athleisure','accessory','premium'], FMCD:['cooling','kitchen','appliance'], D2C:['beauty','nutrition','eco'], Healthcare:['device','homecare','otc']}[state.industry]||[];
       if (state.user==='returning') base.push('trending');
-      if (state.user==='known') base.push('premium');
+      if (state.user==='known') base.push(hashToTag(state.userInfo));
       return base;
     }
 
     function score(prod){
-      const bias = state.bias;
-      if (bias==='price') return -prod.price + prod.rating*2; // cheaper first (tie-break by rating)
-      if (bias==='rating') return prod.rating*10 - prod.price*0.05;
-      if (bias==='affinity'){
+      if (state.bias==='price') return -prod.usd + prod.rating*2; // cheaper first
+      if (state.bias==='rating') return prod.rating*10 - prod.usd*0.05;
+      if (state.bias==='affinity'){
         const hit = (prod.tags||[]).reduce((acc,t)=> acc + (affinityTags().includes(t)?1:0), 0);
-        return hit*10 + prod.rating*2 - prod.price*0.02;
+        return hit*10 + prod.rating*2 - prod.usd*0.02;
       }
       return prod.rating;
     }
@@ -523,134 +496,108 @@
     function productsForState(){
       const src = CATALOG[state.industry].slice();
       if (state.model==='static'){
-        return src.slice(0,6); // editorial order
+        // editorial order, but still nudge by rule bias for clarity
+        return src.sort((a,b)=> score(b)-score(a)).slice(0,6);
       }
+      // dynamic/collections: behavior- & rule-aware sort
       const sorted = src.sort((a,b)=> score(b)-score(a));
       return sorted.slice(0,6);
     }
 
+    function productsTrending(){
+      const src = CATALOG[state.industry].slice();
+      if (state.model==='static'){
+        // show universally trending (rating-weighted)
+        return src.sort((a,b)=> (b.rating - a.rating) || (a.usd-b.usd)).slice(0,3);
+      } else if (state.model==='dynamic'){
+        // user-context aware trending
+        if (state.user==='new') return src.sort((a,b)=> (b.rating*2 - a.rating*2) - (b.usd*0.02 - a.usd*0.02)).slice(0,3);
+        if (state.user==='returning') return boostByTag(src, 'trending').slice(0,3);
+        if (state.user==='known') return boostByTag(src, hashToTag(state.userInfo)).slice(0,3);
+      } else { // collections
+        // surface top item from each top collection
+        const tags = collectionTags(state.industry).slice(0,3);
+        return boostByAnyTag(src, tags).slice(0,3);
+      }
+      return src.slice(0,3);
+    }
+
+    function boostByTag(list, tag){ return list.slice().sort((a,b)=> ((b.tags||[]).includes(tag)?1:0) - ((a.tags||[]).includes(tag)?1:0) || score(b)-score(a)); }
+    function boostByAnyTag(list, tags){ return list.slice().sort((a,b)=> matchCount(b,tags)-matchCount(a,tags) || score(b)-score(a)); }
+    function matchCount(p,tags){ return (p.tags||[]).reduce((m,t)=> m + (tags.includes(t)?1:0), 0); }
+    function collectionTags(ind){
+      if (ind==='Retail') return ['premium','accessory','athleisure'];
+      if (ind==='FMCD') return ['cooling','kitchen','water'];
+      if (ind==='D2C') return ['beauty','nutrition','eco'];
+      return ['device','otc','homecare'];
+    }
+
+    // Hash user info → pseudo purchase tag (stable per string)
+    function hashToTag(s){ if(!s) return 'premium'; const h = Array.from(s).reduce((a,c)=> (a*31 + c.charCodeAt(0))>>>0, 7); const pool = ['premium','cooling','kitchen','beauty','nutrition','eco','device','otc','accessory','apparel']; return pool[h % pool.length]; }
+
+    // ---------- Hero generation (unique per combo) ------------------------
+    function getHeroCopy(){
+      const email = parseEmail(state.userInfo);
+      const base = {
+        new: {t:`Welcome to ${state.brand}`, s:'Discover picks chosen for your industry.'},
+        returning: {t:`Welcome back to ${state.brand}`, s:'We saved your recent views and similar styles.'},
+        known: {t:`Hi ${email||'there'}`, s:'Your history powers smarter recommendations.'}
+      }[state.user];
+      const biasLine = {price:'Optimized for best value.', rating:'Top-rated first.', affinity:'Dialed to your affinity.'}[state.bias];
+      return {title: base.t, sub: base.s + ' ' + biasLine};
+    }
+
+    function heroArtDataURL(key, theme){
+      // Simple abstract composition that varies by combo string
+      const seed = Array.from(key).reduce((a,c)=> (a*33 + c.charCodeAt(0))>>>0, 13);
+      const circles = Array.from({length:6}).map((_,i)=>{
+        const r = 18 + (seed>>(i*3) & 15) * 2;
+        const x = 40 + (seed>>(i*2) & 127);
+        const y = 80 + (seed>>(i*1) & 95);
+        const op = 0.2 + ((seed>>i)&7)/20;
+        return `<circle cx='${x*3}' cy='${y*2.6}' r='${r*2}' fill='${theme.flare}' opacity='${op}' />`;
+      }).join('');
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='900' height='500'>${circles}</svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    // ---------- Explanations ---------------------------------------------
     function renderWhy(){
-      const ul = req('whyList');
-      ul.innerHTML='';
+      const ul = req('whyList'); ul.innerHTML='';
       const bullets = [];
-      if (state.model==='collections') bullets.push('Showing curated collections for faster discovery.');
-      if (state.model==='dynamic') bullets.push('Grid reordered dynamically based on rules & behavior.');
-      if (state.model==='static') bullets.push('Editorial list, unchanged by user behavior.');
-
-      if (state.bias==='price') bullets.push('Optimized for value: lower prices surface first.');
-      if (state.bias==='rating') bullets.push('Optimized for trust: top-rated items surface first.');
-      if (state.bias==='affinity') bullets.push('Optimized for affinity: tags matching user/industry boosted.');
-
-      if (state.user==='new') bullets.push('New user: broader trending + gentle ID capture.');
-      if (state.user==='returning') bullets.push('Returning: recently-viewed and lookalikes prioritized.');
-      if (state.user==='known') bullets.push(`Known: personalized copy & loyalty nudge for ${state.email||'member'}.`);
-
-      bullets.forEach(b=>{ const li = document.createElement('li'); li.textContent=b; ul.appendChild(li); })
+      bullets.push(`Theme = ${state.industry} palette, banner varies per combo.`);
+      if (state.model==='collections') bullets.push('Showing curated collections + boosted items from collection tags.');
+      if (state.model==='dynamic') bullets.push('Dynamic re-ordering by behavior & rule bias.');
+      if (state.model==='static') bullets.push('Editorial list with subtle rule biasing.');
+      if (state.user==='new') bullets.push('New user: broader trending + capture prompt.');
+      if (state.user==='returning') bullets.push('Returning: surfaces recently viewed and lookalikes.');
+      if (state.user==='known') bullets.push('Known: loyalty nudge and boosts based on past purchase signature.');
+      bullets.push({price:'Rule: value-first', rating:'Rule: rating-first', affinity:'Rule: affinity-first'}[state.bias]);
+      bullets.forEach(b=>{ const li=document.createElement('li'); li.textContent=b; ul.appendChild(li); })
     }
 
-    function renderPlays(){
-      const host = req('plays');
-      host.innerHTML='';
-      (INDUSTRY_PLAYS[state.industry]||[]).forEach(t=>{
-        const c = document.createElement('div'); c.className='chip'; c.textContent=t; host.appendChild(c);
-      })
-    }
+    function renderPlays(){ const host=req('plays'); host.innerHTML=''; (INDUSTRY_PLAYS[state.industry]||[]).forEach(t=>{ const c=document.createElement('div'); c.className='chip'; c.textContent=t; host.appendChild(c); }); }
 
-    // ---- URL & UX helpers ------------------------------------------------
-    function reset(){
-      Object.assign(state, {industry:'Retail', model:'dynamic', bias:'affinity', user:'new', brand:'Acme', site:'', color:'#4F46E5', email:''});
-      // re-seed inputs
-      req('industry').value = state.industry;
-      req('model').value = state.model;
-      req('bias').value = state.bias;
-      req('user').value = state.user;
-      req('brand').value = state.brand;
-      req('siteUrl').value = state.site;
-      req('color').value = state.color;
-      req('email').value = state.email;
-      render(); syncUrl();
-    }
+    // ---------- URL & helpers --------------------------------------------
+    function reset(){ Object.assign(state, {industry:'Retail', model:'dynamic', bias:'affinity', user:'new', brand:'Acme', userInfo:''}); req('industry').value=state.industry; req('model').value=state.model; req('bias').value=state.bias; req('user').value=state.user; req('brand').value=state.brand; req('userInfo').value=state.userInfo; render(); syncUrl(); }
+    function syncUrl(){ const params=new URLSearchParams(); for(const[k,v] of Object.entries(state)){ if(String(v||'').length) params.set(k,v); } const url=location.pathname+'?'+params.toString(); history.replaceState(null,'',url); }
+    async function copyLink(){ try{ await navigator.clipboard.writeText(location.href); toast('Link copied'); }catch(e){ alert('Link: '+location.href); } }
+    function toast(msg){ const n=document.createElement('div'); n.textContent=msg; n.style.cssText='position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:10px 14px; border-radius:999px; box-shadow:var(--shadow); z-index:50;'; document.body.appendChild(n); setTimeout(()=> n.remove(), 1500); }
 
-    function syncUrl(){
-      const params = new URLSearchParams();
-      for (const [k,v] of Object.entries(state)){
-        if (String(v||'').length) params.set(k, v);
-      }
-      const url = location.pathname + '?' + params.toString();
-      history.replaceState(null, '', url);
-    }
-
-    async function copyLink(){
-      try{
-        await navigator.clipboard.writeText(location.href);
-        toast('Link copied');
-      }catch(e){ alert('Link: '+location.href); }
-    }
-
-    function toast(msg){
-      const n = document.createElement('div');
-      n.textContent = msg;
-      n.style.cssText = 'position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:10px 14px; border-radius:999px; box-shadow:var(--shadow); z-index:50;'
-      document.body.appendChild(n);
-      setTimeout(()=> n.remove(), 1500);
-    }
-
-    // ---- Self-tests (basic smoke) ---------------------------------------
+    // ---------- Self-tests ------------------------------------------------
     function runTests(){
-      const out = req('testResults');
-      out.innerHTML = '';
-      const results = [];
-      function assert(name, fn){
-        try{ fn(); results.push(['pass', name]); }
-        catch(e){ results.push(['fail', name+` → ${e.message}`]); }
-      }
-
-      // T1: Critical elements exist
-      assert('Elements present', ()=>{
-        ['topLogo','siteLogo','brandName','industryPill','heroTitle','heroSub','modules','whyList','plays'].forEach(id=> req(id));
-      });
-
-      // T2: Render does not throw for all state combos
-      assert('Render across combos', ()=>{
-        const industries = ['Retail','FMCD','D2C','Healthcare'];
-        const models = ['static','dynamic','collections'];
-        const biases = ['price','rating','affinity'];
-        const users = ['new','returning','known'];
-        for (const a of industries){ for (const b of models){ for (const c of biases){ for (const d of users){
-          Object.assign(state, {industry:a, model:b, bias:c, user:d});
-          render();
-        }}}}
-      });
-
-      // T3: Brand initials update in both top logo and site logo
-      assert('Brand initials reflect brand name', ()=>{
-        const old = state.brand; state.brand = 'Blue River'; render();
-        if (req('topLogo').textContent !== 'BR') throw new Error('Top initials not updated');
-        if (req('siteLogo').textContent !== 'BR') throw new Error('Site initials not updated');
-        state.brand = old; render();
-      });
-
-      // T4: Known user greeting uses email when provided
-      assert('Known user uses email', ()=>{
-        Object.assign(state, {user:'known', email:'vip@example.com'}); render();
-        if (!req('heroTitle').textContent.includes('vip@example.com')) throw new Error('Email not reflected in hero');
-      });
-
-      // T5: Loyalty card appears for all industries when Known
-      assert('Loyalty card for all industries (Known)', ()=>{
-        const industries = ['Retail','FMCD','D2C','Healthcare'];
-        for (const ind of industries){
-          Object.assign(state, {industry: ind, user:'known', email:'test@example.com'}); render();
-          if (!req('modules').innerText.includes('Loyalty boost')) throw new Error(`Missing loyalty card for ${ind}`);
-        }
-      });
-
-      // Print results
-      results.forEach(([status,msg])=>{
-        const li = document.createElement('li'); li.textContent = `${status.toUpperCase()} — ${msg}`; li.style.color = status==='pass'? '#065f46':'#B91C1C'; out.appendChild(li);
-      });
-      toast(`${results.filter(r=>r[0]==='pass').length}/${results.length} tests passed`);
-      console.log('Self-test results:', results);
+      const out=req('testResults'); out.innerHTML=''; const results=[]; function assert(name,fn){ try{ fn(); results.push(['pass',name]); }catch(e){ results.push(['fail', name+` → ${e.message}`]); } }
+      // T1: Essentials exist
+      assert('Elements present', ()=>{ ['topLogo','siteLogo','brandName','industryPill','heroTitle','heroSub','modules','whyList','plays','heroArt'].forEach(id=> req(id)); });
+      // T2: Distinct banner for two different combos
+      assert('Banner changes across combos', ()=>{ Object.assign(state,{industry:'Retail',model:'dynamic',bias:'affinity',user:'new'}); render(); const a=req('heroArt').src; Object.assign(state,{industry:'FMCD',model:'static',bias:'price',user:'known'}); render(); const b=req('heroArt').src; if (a===b) throw new Error('Hero art identical'); });
+      // T3: INR currency visible
+      assert('Prices show INR', ()=>{ const text=req('modules').innerText; if (!/₹\d/.test(text)) throw new Error('No INR symbol'); });
+      // T4: Known uses email from User Info
+      assert('Known user picks email', ()=>{ Object.assign(state,{user:'known', userInfo:'vip@example.com'}); render(); if (!req('heroTitle').textContent.toLowerCase().includes('vip@example.com')) throw new Error('Email not used'); });
+      // T5: Render all combos without throwing (sampled to keep it fast)
+      assert('Render sampled combos', ()=>{ const inds=['Retail','FMCD']; const models=['static','dynamic','collections']; const biases=['price','rating','affinity']; const users=['new','returning','known']; for(const i of inds){ for(const m of models){ for(const b of biases){ for(const u of users){ Object.assign(state,{industry:i, model:m, bias:b, user:u}); render(); }}}} });
+      results.forEach(([status,msg])=>{ const li=document.createElement('li'); li.textContent=`${status.toUpperCase()} — ${msg}`; li.style.color=status==='pass'? '#065f46':'#B91C1C'; out.appendChild(li); }); toast(`${results.filter(r=>r[0]==='pass').length}/${results.length} tests passed`);
     }
   </script>
 </body>

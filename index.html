@@ -3,602 +3,1369 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personalization Playground — Web Preview (Enhanced)</title>
+  <title>WebEngage Personalization Simulator</title>
   <style>
-    :root{
-      --accent:#4F46E5; /* will be overridden per-industry */
-      --heroA:#4F46E5;  /* hero gradient start */
-      --heroB:#93C5FD;  /* hero gradient end   */
-      --bg:#0b1020;
-      --card:#ffffff;
-      --muted:#6b7280;
-      --text:#0f172a;
-      --chip:#EEF2FF;
-      --radius:18px;
-      --shadow:0 12px 30px rgba(17,24,39,0.12);
-      --ring:0 0 0 3px rgba(79,70,229,.15);
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1E40AF;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --bg: #F9FAFB;
+      --card: #FFFFFF;
+      --border: #E5E7EB;
+      --text: #111827;
+      --text-muted: #6B7280;
+      --text-light: #9CA3AF;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --radius: 8px;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      color:var(--text); background:#F6F7FB;
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
     }
-    a{color:inherit}
-    .wrap{max-width:1320px; margin:0 auto; padding:24px}
 
-    /* Top controls */
-    .topbar{position:sticky; top:0; z-index:20; background:linear-gradient(180deg, rgba(246,247,251,0.95), rgba(246,247,251,0.65)); backdrop-filter:saturate(1.2) blur(8px); border-bottom:1px solid #e5e7eb}
-    .controls{display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; align-items:end}
-    .control{grid-column: span 3}
-    .control.small{grid-column: span 3}
-    .control.wide{grid-column: span 6}
-    label{font-size:12px; color:var(--muted); letter-spacing:.02em}
-    select, input[type="text"]{
-      width:100%; padding:12px 14px; font-size:14px; border-radius:14px; border:1px solid #e5e7eb; background:white; outline:none;
+    .container { max-width: 1600px; margin: 0 auto; padding: 0 24px; }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
     }
-    select:focus, input[type="text"]:focus{box-shadow:var(--ring)}
-    button{border:0; border-radius:999px; padding:10px 16px; font-weight:700; box-shadow:var(--shadow); cursor:pointer; transition:.15s transform ease}
-    button:active{transform:translateY(1px)}
-    .btn-primary{background:var(--accent); color:white}
-    .btn-ghost{background:white; color:#111827; border:1px solid #e5e7eb; box-shadow:none}
-    .pill{font-size:12px; padding:6px 10px; border-radius:999px; background:#f1f5f9; color:#0f172a; margin-left:auto}
-    .logo{width:30px; height:30px; border-radius:10px; background:var(--accent); display:grid; place-items:center; color:white; font-weight:800}
 
-    /* Simulator layout — full-width focus */
-    .sim-wrap{margin-top:18px}
-    .site{background:white; border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
-    .chrome{display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid #eef2f7}
-    .brand{font-weight:800}
-
-    /* Hero — highly visual */
-    .hero{position:relative; overflow:hidden; padding:36px 28px; background:linear-gradient(135deg, var(--heroA), var(--heroB)); color:white; min-height:220px}
-    .hero h2{margin:0 0 8px 0; font-size:28px}
-    .hero p{margin:0; opacity:.95}
-    .hero .cta{margin-top:16px}
-    .hero .illustration{position:absolute; right:0; bottom:-8px; width:42%; max-width:520px; opacity:.25; filter:drop-shadow(0 10px 24px rgba(0,0,0,.2))}
-    .variant-tag{position:absolute; top:14px; right:14px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); padding:6px 10px; font-size:12px; border-radius:999px}
-
-    /* Modules */
-    .site-content{padding:22px}
-    .modules{display:grid; grid-template-columns: 1fr; gap:16px}
-    .card{background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:16px}
-    .card h3{margin:0 0 12px 0}
-
-    .collection-row{display:flex; gap:12px; overflow:auto; padding-bottom:4px}
-    .col-card{min-width:200px; height:104px; border-radius:12px; background:linear-gradient(120deg, rgba(255,255,255,.25), rgba(255,255,255,.15)); border:1px solid #e5e7eb; display:flex; align-items:flex-end; padding:12px; font-weight:700}
-
-    .product-grid{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:14px}
-    .product{border:1px solid #eef2f7; border-radius:14px; overflow:hidden; background:white; position:relative; transition:.15s transform ease, box-shadow .15s ease}
-    .product:hover{transform:translateY(-2px); box-shadow:0 16px 30px rgba(2,6,23,.08)}
-    .p-thumb{height:140px; background:#f8fafc; display:grid; place-items:center}
-    .p-thumb img{width:100%; height:100%; object-fit:cover}
-    .p-body{padding:12px}
-    .price{font-weight:900}
-    .muted{color:var(--muted)}
-    .badge{position:absolute; top:10px; left:10px; background:var(--accent); color:white; font-size:11px; padding:4px 8px; border-radius:999px}
-
-    /* Bottom explainers */
-    .bottom{margin-top:18px; display:grid; grid-template-columns: repeat(3, 1fr); gap:16px}
-    .bottom .card ul{margin:0; padding-left:18px}
-    .diagnostics .muted{font-size:13px}
-
-    @media (max-width: 1100px){
-      .product-grid{grid-template-columns: repeat(2, minmax(0,1fr))}
-      .bottom{grid-template-columns: 1fr}
-      .hero{min-height:200px}
-      .hero .illustration{width:58%}
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
     }
-    @media (max-width: 560px){
-      .product-grid{grid-template-columns: 1fr}
-      .controls{grid-template-columns: repeat(6, 1fr)}
-      .control{grid-column: span 6}
-      .control.small{grid-column: span 6}
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--primary);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr 360px;
+      gap: 24px;
+      margin: 24px 0;
+      align-items: start;
+    }
+
+    .control-panel, .analytics-panel {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      position: sticky;
+      top: 88px;
+      max-height: calc(100vh - 110px);
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-section:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    select, input[type="text"], input[type="number"], input[type="email"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+      transition: all 0.15s;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .simulator {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .browser-chrome {
+      background: #F3F4F6;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .browser-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .browser-dot:nth-child(1) { background: #EF4444; }
+    .browser-dot:nth-child(2) { background: #F59E0B; }
+    .browser-dot:nth-child(3) { background: #10B981; }
+
+    .browser-url {
+      flex: 1;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .website {
+      min-height: 600px;
+    }
+
+    .site-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .site-logo {
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .site-nav {
+      display: flex;
+      gap: 24px;
+      font-size: 14px;
+    }
+
+    .site-nav a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .site-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .hero-banner {
+      padding: 48px 24px;
+      background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner h1 {
+      font-size: 36px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .hero-banner p {
+      font-size: 18px;
+      opacity: 0.95;
+      margin-bottom: 24px;
+    }
+
+    .hero-cta {
+      background: white;
+      color: var(--primary);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .site-content {
+      padding: 32px 24px;
+    }
+
+    .content-section {
+      margin-bottom: 40px;
+    }
+
+    .content-section:last-child { margin-bottom: 0; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .personalization-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: #DBEAFE;
+      color: var(--primary);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      background: #F3F4F6;
+      display: grid;
+      place-items: center;
+      font-size: 48px;
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-trending { background: #FEF3C7; color: #92400E; }
+    .badge-new { background: #DBEAFE; color: #1E40AF; }
+    .badge-sale { background: #FEE2E2; color: #991B1B; }
+    .badge-recommended { background: #D1FAE5; color: #065F46; }
+
+    .product-info {
+      padding: 16px;
+    }
+
+    .product-name {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .product-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .product-rating {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .product-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      background: #F3F4F6;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .promo-banner {
+      padding: 20px 24px;
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .banner-offer {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: white;
+    }
+
+    .banner-cart {
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: white;
+    }
+
+    .banner-loyalty {
+      background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+      color: white;
+    }
+
+    .banner-content h3 {
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .banner-content p {
+      opacity: 0.95;
+      font-size: 14px;
+    }
+
+    .analytics-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric-card {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .metric-change {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .metric-change.positive { color: var(--success); }
+    .metric-change.negative { color: var(--danger); }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+
+    .segment-tag {
+      display: inline-block;
+      padding: 6px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .propensity-list {
+      list-style: none;
+    }
+
+    .propensity-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .propensity-item:last-child { border-bottom: none; }
+
+    .propensity-label {
+      font-weight: 500;
+    }
+
+    .propensity-score {
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .score-high { background: #D1FAE5; color: #065F46; }
+    .score-medium { background: #FEF3C7; color: #92400E; }
+    .score-low { background: #FEE2E2; color: #991B1B; }
+
+    .trigger-log {
+      font-size: 12px;
+      padding: 8px;
+      background: #F9FAFB;
+      border-left: 3px solid var(--primary);
+      margin-bottom: 8px;
+      border-radius: 4px;
+    }
+
+    .trigger-time {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .active-personalization {
+      font-size: 13px;
+      padding: 6px 10px;
+      background: var(--bg);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      border-left: 3px solid var(--primary);
+    }
+
+    @media (max-width: 1400px) {
+      .main-grid {
+        grid-template-columns: 280px 1fr 320px;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .control-panel, .analytics-panel {
+        position: static;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+
+      .site-nav {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="wrap">
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
-        <div class="logo" id="topLogo">WE</div>
-        <div style="font-weight:800">Personalization Playground</div>
-        <div class="pill" id="statePill">State: –</div>
-        <div style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn-ghost" id="resetBtn" title="Reset to defaults">Reset</button>
-          <button class="btn-primary" id="copyLinkBtn" title="Copy link to this exact state">Copy sharable link</button>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">WE</div>
+          <span>WebEngage Personalization Simulator</span>
         </div>
-      </div>
-      <div class="controls">
-        <div class="control">
-          <label>Industry</label>
-          <select id="industry">
-            <option>Retail</option>
-            <option>FMCD</option>
-            <option>D2C</option>
-            <option>Healthcare</option>
-          </select>
-        </div>
-        <div class="control">
-          <label>Recommendation model</label>
-          <select id="model">
-            <option value="static">Static (editorial)</option>
-            <option value="dynamic">Dynamic (behavioral)</option>
-            <option value="collections">Collections (curated)</option>
-          </select>
-        </div>
-        <div class="control">
-          <label>Rule bias</label>
-          <select id="bias">
-            <option value="price">Price-focused</option>
-            <option value="rating">Ratings-focused</option>
-            <option value="affinity">Affinity-focused</option>
-          </select>
-        </div>
-        <div class="control">
-          <label>User context</label>
-          <select id="user">
-            <option value="new">New</option>
-            <option value="returning">Returning</option>
-            <option value="known">Known (existing)</option>
-          </select>
-        </div>
-        <div class="control small">
-          <label>Brand name</label>
-          <input id="brand" type="text" placeholder="Acme" />
-        </div>
-        <div class="control wide">
-          <label>User Info (email / phone / notes)</label>
-          <input id="userInfo" type="text" placeholder="e.g. anmol@brand.com, premium buyer" />
+        <div class="header-actions">
+          <button class="btn btn-secondary btn-sm" id="resetBtn">Reset</button>
+          <button class="btn btn-primary btn-sm" id="shareBtn">Share Config</button>
         </div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="wrap sim-wrap">
-    <div class="site" id="site">
-      <div class="chrome">
-        <div class="logo" id="siteLogo">WE</div>
-        <div class="brand" id="brandName">Acme</div>
-        <div class="pill" id="industryPill">Retail</div>
-      </div>
-      <div class="hero">
-        <span class="variant-tag" id="variantTag">–</span>
-        <h2 id="heroTitle">Welcome to Acme</h2>
-        <p id="heroSub">Smart recommendations that adapt to each visitor.</p>
-        <div class="cta">
-          <button class="btn-primary" id="ctaBtn">Shop now</button>
+  <div class="container">
+    <div class="main-grid">
+      <aside class="control-panel">
+        <div class="panel-section">
+          <div class="section-title">Industry & Brand</div>
+          <div class="form-group">
+            <label>Industry Vertical</label>
+            <select id="industry">
+              <option value="retail">Retail & Fashion</option>
+              <option value="ecommerce">E-commerce Marketplace</option>
+              <option value="travel">Travel & Hospitality</option>
+              <option value="fintech">Fintech & Banking</option>
+              <option value="edtech">EdTech & Learning</option>
+              <option value="food">Food & Delivery</option>
+              <option value="health">Healthcare & Wellness</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Brand Name</label>
+            <input type="text" id="brandName" value="AcmeCo" placeholder="Enter brand name">
+          </div>
         </div>
-        <img class="illustration" id="heroArt" alt="" />
-      </div>
-      <div class="site-content">
-        <div class="modules" id="modules"></div>
-        <p class="muted" style="margin-top:8px">This is a simulator for demo purposes only. Product data & imagery are synthetic.</p>
-      </div>
-    </div>
 
-    <!-- Bottom explainers moved under the simulator for larger canvas -->
-    <div class="bottom">
-      <div class="card">
-        <h3>What changed & why</h3>
-        <ul id="whyList"></ul>
-      </div>
-      <div class="card">
-        <h3>Common plays by industry</h3>
-        <div id="plays" class="chips"></div>
-      </div>
-      <div class="card diagnostics">
-        <h3>Diagnostics</h3>
-        <button class="btn-ghost" id="runTestsBtn">Run self‑tests</button>
-        <ul id="testResults" class="muted"></ul>
-      </div>
+        <div class="panel-section">
+          <div class="section-title">User Profile</div>
+          <div class="form-group">
+            <label>Lifecycle Stage</label>
+            <select id="userStage">
+              <option value="anonymous">Anonymous Visitor</option>
+              <option value="new">New User</option>
+              <option value="active">Active User</option>
+              <option value="engaged">Highly Engaged</option>
+              <option value="dormant">Dormant</option>
+              <option value="churned">Churned</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>User Email</label>
+            <input type="email" id="userEmail" placeholder="user@example.com">
+          </div>
+          <div class="form-group">
+            <label>Session Count</label>
+            <input type="number" id="sessionCount" value="1" min="1" max="100">
+          </div>
+          <div class="form-group">
+            <label>Days Since Last Visit</label>
+            <input type="number" id="daysSinceVisit" value="0" min="0" max="365">
+          </div>
+          <div class="form-group">
+            <label>Total Purchases</label>
+            <input type="number" id="purchaseCount" value="0" min="0" max="50">
+          </div>
+          <div class="form-group">
+            <label>Lifetime Value</label>
+            <input type="number" id="ltv" value="0" min="0" step="100" placeholder="₹">
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">Affinity & Behavior</div>
+          <div class="form-group">
+            <label>Price Sensitivity</label>
+            <select id="priceSensitivity">
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Category Affinity</label>
+            <select id="categoryAffinity">
+              <option value="none">None</option>
+              <option value="electronics">Electronics</option>
+              <option value="fashion">Fashion</option>
+              <option value="home">Home</option>
+              <option value="beauty">Beauty</option>
+              <option value="sports">Sports</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Browse Behavior</label>
+            <select id="browseBehavior">
+              <option value="casual">Casual Browser</option>
+              <option value="focused">Focused Shopper</option>
+              <option value="research">Research Mode</option>
+              <option value="cart">Cart Abandoner</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-title">Personalization Engine</div>
+          <div class="form-group">
+            <label>Recommendation Algorithm</label>
+            <select id="recoAlgo">
+              <option value="collaborative">Collaborative Filtering</option>
+              <option value="content">Content-Based</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="trending">Trending</option>
+              <option value="affinity">Affinity-Based</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Personalization Level</label>
+            <select id="personalizationLevel">
+              <option value="none">None</option>
+              <option value="basic">Basic</option>
+              <option value="advanced">Advanced</option>
+              <option value="predictive">Predictive</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" id="applyBtn">Apply Changes</button>
+      </aside>
+
+      <main class="simulator">
+        <div class="browser-chrome">
+          <div class="browser-dots">
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+          </div>
+          <div class="browser-url" id="browserUrl">https://www.acmeco.com</div>
+        </div>
+
+        <div class="website">
+          <div class="site-header">
+            <div class="site-logo" id="siteLogo">AcmeCo</div>
+            <div class="site-nav">
+              <a href="#">Shop</a>
+              <a href="#">Categories</a>
+              <a href="#">Deals</a>
+              <a href="#">About</a>
+            </div>
+            <div class="site-user" id="siteUser">
+              <span>Guest</span>
+            </div>
+          </div>
+
+          <div id="heroBanner"></div>
+
+          <div id="promoBanners"></div>
+
+          <div class="site-content">
+            <div id="contentSections"></div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="analytics-panel">
+        <div class="panel-section">
+          <div class="analytics-title">User Insights</div>
+          <div class="segment-tag" id="userSegment">Anonymous</div>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-label">Engagement Score</div>
+              <div class="metric-value" id="engagementScore">0</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="engagementBar" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="analytics-title">Propensity Scores</div>
+          <ul class="propensity-list" id="propensityList"></ul>
+        </div>
+
+        <div class="panel-section">
+          <div class="analytics-title">Active Personalizations</div>
+          <div id="activePersonalizations"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="analytics-title">Real-time Triggers</div>
+          <div id="triggerLog"></div>
+        </div>
+
+        <div class="panel-section">
+          <div class="analytics-title">Predicted Metrics</div>
+          <div class="metric-grid" id="predictedMetrics"></div>
+        </div>
+      </aside>
     </div>
   </div>
 
   <script>
-    // ---------- Utilities --------------------------------------------------
-    const elCache = new Map();
-    function el(id){ if (!elCache.has(id)) elCache.set(id, document.getElementById(id)); return elCache.get(id); }
-    function req(id){ const n = el(id); if(!n) throw new Error(`Missing element #${id}`); return n; }
-    const INR_RATE = 83; // approx USD→INR
-    function formatINR(n){
-      // Indian numbering format
-      const x = Math.round(n).toString();
-      const last3 = x.slice(-3); const other = x.slice(0, -3);
-      return other.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + (other?"," : "") + last3;
-    }
-    function usdToInr(usd){ return usd * INR_RATE; }
-    function initials(str){ const parts=(str||'A C').split(/\s+/).slice(0,2); return parts.map(s=>s[0]||'').join('').toUpperCase(); }
-    function pick(val, def, allowed){ if (!val) return def; const norm=String(val).trim(); const hit = allowed.find(a=> a.toLowerCase()===norm.toLowerCase()); return hit||def; }
-    function parseEmail(s){ const m = (s||'').match(/[\w.+-]+@[\w-]+\.[\w.-]+/); return m? m[0] : ''; }
-
-    // ---------- Themes per industry ---------------------------------------
-    const THEMES = {
-      Retail:   {accent:'#111827', heroA:'#0B0F19', heroB:'#1F2937', flare:'#D4AF37'}, // luxury black + gold
-      FMCD:     {accent:'#1E3A8A', heroA:'#0EA5E9', heroB:'#1E40AF', flare:'#60A5FA'}, // cool tech blues
-      D2C:      {accent:'#A21CAF', heroA:'#D946EF', heroB:'#F97316', flare:'#FDE68A'}, // vibrant magenta→orange
-      Healthcare:{accent:'#0F766E', heroA:'#0EA5A4', heroB:'#22C55E', flare:'#A7F3D0'}  // teal/green wellness
+    const CONFIG = {
+      industry: 'retail',
+      brandName: 'AcmeCo',
+      userStage: 'anonymous',
+      userEmail: '',
+      sessionCount: 1,
+      daysSinceVisit: 0,
+      purchaseCount: 0,
+      ltv: 0,
+      priceSensitivity: 'medium',
+      categoryAffinity: 'none',
+      browseBehavior: 'casual',
+      recoAlgo: 'hybrid',
+      personalizationLevel: 'advanced'
     };
 
-    // ---------- Synthetic catalog with tags & tiny art --------------------
-    function p(name, usd, rating, tags, code){ return {id:name.toLowerCase().replace(/[^a-z0-9]+/g,'-'), name, usd, rating, tags, code}; }
-    const CATALOG = {
-      Retail: [
-        p('Nova Sneakers', 79, 4.7, ['shoes','athleisure','men'], 'NS'),
-        p('Luna Tote', 64, 4.4, ['bags','women'], 'LT'),
-        p('Aero Tee', 24, 4.2, ['apparel','unisex'], 'AT'),
-        p('Quartz Watch', 149, 4.8, ['accessory','unisex','premium'], 'QW'),
-        p('Denim Jacket', 92, 4.5, ['apparel','men'], 'DJ'),
-        p('Silk Scarf', 38, 4.3, ['accessory','women'], 'SS'),
-        p('Trail Backpack', 88, 4.6, ['bags','unisex','outdoor'], 'TB'),
-        p('Comfy Socks (3)', 12, 4.1, ['accessory','value'], 'CS')
-      ],
-      FMCD: [
-        p('FrostX 300L Fridge', 399, 4.5, ['appliance','kitchen','value','cooling'], 'FR'),
-        p('BreezeMax 1.5T AC', 529, 4.6, ['cooling','premium'], 'AC'),
-        p('AquaPure RO', 189, 4.3, ['water','kitchen'], 'RO'),
-        p('SwiftWash 7kg', 329, 4.4, ['laundry','value'], 'WM'),
-        p('ChefPro Induction', 69, 4.2, ['kitchen','value'], 'IH'),
-        p('TurboVac Max', 149, 4.1, ['home','cleaning'], 'VC'),
-        p('GlowHeat Geyser', 119, 4.0, ['bath','water'], 'GY'),
-        p('SteelCool Fan', 59, 4.3, ['cooling','value'], 'FN')
-      ],
-      D2C: [
-        p('Plant Protein (1kg)', 24, 4.5, ['nutrition','value'], 'PP'),
-        p('Glow Serum 30ml', 18, 4.7, ['beauty','premium'], 'GS'),
-        p('Bamboo Toothbrush (2)', 6, 4.2, ['home','eco'], 'BT'),
-        p('Daily Multivitamin', 12, 4.3, ['nutrition'], 'MV'),
-        p('Cold Brew Bottles (6)', 14, 4.4, ['beverage','trending'], 'CB'),
-        p('Ceramic Mug', 8, 4.1, ['home','value'], 'MG'),
-        p('Yoga Strap', 10, 4.0, ['fitness','eco'], 'YS'),
-        p('No-Sugar Granola', 9, 4.2, ['food','healthy'], 'GR')
-      ],
-      Healthcare: [
-        p('Digital Thermometer', 9, 4.5, ['device','value'], 'DT'),
-        p('BP Monitor', 34, 4.6, ['device','homecare'], 'BP'),
-        p('Orthopedic Pillow', 19, 4.3, ['sleep','comfort'], 'OP'),
-        p('Nebulizer Compact', 29, 4.4, ['device','respiratory'], 'NB'),
-        p('Multivitamin 60 tabs', 11, 4.2, ['supplement','value'], 'SV'),
-        p('Sugar Check Strips (50)', 13, 4.1, ['device','diabetes'], 'SC'),
-        p('Cold & Flu Care Pack', 7, 4.0, ['otc','seasonal'], 'CF'),
-        p('Hand Sanitizer 500ml', 4, 4.0, ['otc','value'], 'HS')
+    const PRODUCTS = {
+      retail: [
+        { id: 1, name: 'Wireless Headphones', price: 2999, rating: 4.5, category: 'electronics', tags: ['trending', 'premium'] },
+        { id: 2, name: 'Smart Watch Series 5', price: 8999, rating: 4.7, category: 'electronics', tags: ['new', 'premium'] },
+        { id: 3, name: 'Cotton T-Shirt', price: 599, rating: 4.2, category: 'fashion', tags: ['sale', 'value'] },
+        { id: 4, name: 'Running Shoes', price: 3499, rating: 4.6, category: 'sports', tags: ['trending'] },
+        { id: 5, name: 'Yoga Mat Premium', price: 1299, rating: 4.4, category: 'sports', tags: ['recommended'] },
+        { id: 6, name: 'Coffee Maker', price: 4999, rating: 4.3, category: 'home', tags: ['new'] },
+        { id: 7, name: 'Face Serum', price: 1499, rating: 4.8, category: 'beauty', tags: ['trending', 'recommended'] },
+        { id: 8, name: 'Laptop Backpack', price: 1899, rating: 4.5, category: 'electronics', tags: ['value'] },
       ]
     };
 
-    const COLLECTIONS = {
-      Retail:["Festive Picks","Office Essentials","Weekend Fits"],
-      FMCD:["Summer Cooling","Kitchen Staples","Home Hygiene"],
-      D2C:["Wellness Starter","Eco Basics","Trending Now"],
-      Healthcare:["Home Care Essentials","Respiratory Care","Daily Wellness"]
-    };
+    function init() {
+      loadFromURL();
+      bindEvents();
+      render();
+    }
 
-    const INDUSTRY_PLAYS = {
-      Retail:["Exit-intent capture for unknown users","Recently viewed + similar","Price-drop alerts for wishlist"],
-      FMCD:["AMC/warranty nudges","Service due reminders (RCS/WA)","Store demo booking"],
-      D2C:["Bundles by affinity","Subscription trial upsell","UGC-powered top rated"],
-      Healthcare:["Condition-based guidance (non-diagnostic)","Reorder reminders","Tele-consult booking"]
-    };
+    function loadFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      Object.keys(CONFIG).forEach(key => {
+        const value = params.get(key);
+        if (value !== null) {
+          if (['sessionCount', 'daysSinceVisit', 'purchaseCount', 'ltv'].includes(key)) {
+            CONFIG[key] = parseInt(value) || 0;
+          } else {
+            CONFIG[key] = value;
+          }
+        }
+      });
 
-    // ---------- State -----------------------------------------------------
-    const qs = new URLSearchParams(location.search);
-    const state = {
-      industry: pick(qs.get('industry'), 'Retail', ['Retail','FMCD','D2C','Healthcare']),
-      model: pick(qs.get('model'), 'dynamic', ['static','dynamic','collections']),
-      bias: pick(qs.get('bias'), 'affinity', ['price','rating','affinity']),
-      user: pick(qs.get('user'), 'new', ['new','returning','known']),
-      brand: qs.get('brand') || 'Acme',
-      userInfo: qs.get('userInfo') || ''
-    };
+      Object.keys(CONFIG).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.value = CONFIG[key];
+      });
+    }
 
-    document.addEventListener('DOMContentLoaded', boot);
+    function bindEvents() {
+      document.getElementById('applyBtn').addEventListener('click', () => {
+        updateConfig();
+        render();
+        updateURL();
+      });
 
-    function boot(){
-      const inputs = {
-        industry: req('industry'),
-        model: req('model'),
-        bias: req('bias'),
-        user: req('user'),
-        brand: req('brand'),
-        userInfo: req('userInfo')
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        Object.assign(CONFIG, {
+          industry: 'retail',
+          brandName: 'AcmeCo',
+          userStage: 'anonymous',
+          userEmail: '',
+          sessionCount: 1,
+          daysSinceVisit: 0,
+          purchaseCount: 0,
+          ltv: 0,
+          priceSensitivity: 'medium',
+          categoryAffinity: 'none',
+          browseBehavior: 'casual',
+          recoAlgo: 'hybrid',
+          personalizationLevel: 'advanced'
+        });
+
+        Object.keys(CONFIG).forEach(key => {
+          const el = document.getElementById(key);
+          if (el) el.value = CONFIG[key];
+        });
+
+        render();
+        updateURL();
+      });
+
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+          alert('Configuration URL copied to clipboard');
+        }).catch(() => {
+          prompt('Copy this URL:', url);
+        });
+      });
+    }
+
+    function updateConfig() {
+      Object.keys(CONFIG).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) {
+          if (['sessionCount', 'daysSinceVisit', 'purchaseCount', 'ltv'].includes(key)) {
+            CONFIG[key] = parseInt(el.value) || 0;
+          } else {
+            CONFIG[key] = el.value;
+          }
+        }
+      });
+    }
+
+    function updateURL() {
+      const params = new URLSearchParams();
+      Object.entries(CONFIG).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+      const newURL = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, '', newURL);
+    }
+
+    function render() {
+      renderBrandElements();
+      renderHeroBanner();
+      renderPromoBanners();
+      renderContentSections();
+      renderAnalytics();
+      logTrigger('Page Loaded', 'User landed on homepage');
+    }
+
+    function renderBrandElements() {
+      document.getElementById('siteLogo').textContent = CONFIG.brandName;
+      document.getElementById('browserUrl').textContent = `https://www.${CONFIG.brandName.toLowerCase().replace(/\s+/g, '')}.com`;
+
+      const userDisplay = document.getElementById('siteUser');
+      if (CONFIG.userEmail) {
+        userDisplay.textContent = CONFIG.userEmail.split('@')[0];
+      } else if (CONFIG.userStage !== 'anonymous') {
+        userDisplay.textContent = 'User';
+      } else {
+        userDisplay.textContent = 'Guest';
+      }
+    }
+
+    function renderHeroBanner() {
+      const heroBanner = document.getElementById('heroBanner');
+      const personalization = getHeroPersonalization();
+
+      heroBanner.innerHTML = `
+        <div class="hero-banner" style="${personalization.gradient}">
+          <h1>${personalization.title}</h1>
+          <p>${personalization.subtitle}</p>
+          <button class="hero-cta">${personalization.cta}</button>
+        </div>
+      `;
+    }
+
+    function getHeroPersonalization() {
+      const defaults = {
+        gradient: 'background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);',
+        title: `Welcome to ${CONFIG.brandName}`,
+        subtitle: 'Discover amazing products tailored for you',
+        cta: 'Shop Now'
       };
-      inputs.industry.value = state.industry;
-      inputs.model.value = state.model;
-      inputs.bias.value = state.bias;
-      inputs.user.value = state.user;
-      inputs.brand.value = state.brand;
-      inputs.userInfo.value = state.userInfo;
 
-      Object.entries(inputs).forEach(([key, inp])=>{
-        inp.addEventListener('change', ()=>{ state[key] = inp.value; render(); syncUrl(); })
-      })
+      if (CONFIG.personalizationLevel === 'none') return defaults;
 
-      req('resetBtn').onclick = reset;
-      req('copyLinkBtn').onclick = copyLink;
-      req('runTestsBtn').onclick = runTests;
-      render(); syncUrl(); if (qs.get('test')==='1') runTests();
-    }
-
-    // ---------- Render ----------------------------------------------------
-    function render(){
-      // Apply theme per industry
-      const t = THEMES[state.industry];
-      document.documentElement.style.setProperty('--accent', t.accent);
-      document.documentElement.style.setProperty('--heroA', t.heroA);
-      document.documentElement.style.setProperty('--heroB', t.heroB);
-
-      // Header chrome
-      req('topLogo').textContent = initials(state.brand);
-      req('siteLogo').textContent = initials(state.brand);
-      req('brandName').textContent = state.brand;
-      req('industryPill').textContent = state.industry;
-
-      // Hero banner (unique for each combo)
-      const comboKey = `${state.industry}/${state.model}/${state.bias}/${state.user}`;
-      req('variantTag').textContent = comboKey;
-      const heroCopy = getHeroCopy();
-      req('heroTitle').textContent = heroCopy.title;
-      req('heroSub').textContent = heroCopy.sub;
-      req('heroArt').src = heroArtDataURL(comboKey, t);
-
-      req('statePill').textContent = `State: ${state.industry} • ${state.model} • ${state.bias} • ${state.user}`;
-
-      // Build modules
-      const modules = req('modules'); modules.innerHTML = '';
-
-      // A) Trending row always exists, content depends on model & user
-      const trendCard = sectionCard('Trending Now');
-      const trendGrid = gridOf(productsTrending());
-      trendCard.appendChild(trendGrid); modules.appendChild(trendCard);
-
-      // B) Primary recommendations
-      const recCard = sectionCard(primaryTitle());
-      const recGrid = gridOf(productsForState());
-      recCard.appendChild(recGrid); modules.appendChild(recCard);
-
-      // C) Contextual modules
-      if (state.model==='collections'){
-        const colCard = sectionCard('Featured Collections');
-        const row = document.createElement('div'); row.className='collection-row';
-        COLLECTIONS[state.industry].forEach(cn=>{ const d=document.createElement('div'); d.className='col-card'; d.textContent=cn; row.appendChild(d); });
-        colCard.appendChild(row); modules.appendChild(colCard);
+      if (CONFIG.userStage === 'churned') {
+        return {
+          gradient: 'background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);',
+          title: `We Miss You! Come Back for 40% Off`,
+          subtitle: 'Exclusive offer just for you - Limited time only',
+          cta: 'Claim Your Discount'
+        };
       }
 
-      if (state.user==='returning') modules.appendChild(infoCard('Recently viewed', 'Based on your last visit, we saved these for you.'));
-      if (state.user==='new') modules.appendChild(captureCard());
-      if (state.user==='known') modules.appendChild(loyaltyCard());
-
-      // Bottom explainers
-      renderWhy();
-      renderPlays();
-    }
-
-    function sectionCard(title){ const card=document.createElement('div'); card.className='card'; const h=document.createElement('h3'); h.textContent=title; card.appendChild(h); return card; }
-    function infoCard(title, sub){ const c=sectionCard(title); const p=document.createElement('p'); p.className='muted'; p.textContent=sub; c.appendChild(p); return c; }
-
-    function captureCard(){
-      const c = sectionCard('Get more relevant picks');
-      const p = document.createElement('p'); p.textContent = 'Share your details (email/phone) so we can personalize even better.'; c.appendChild(p);
-      const row = document.createElement('div'); row.style.display='flex'; row.style.gap='8px';
-      const inp = document.createElement('input'); inp.placeholder='you@brand.com, 98xxxxxx'; inp.style.flex='1'; inp.style.padding='12px 14px'; inp.style.border='1px solid #e5e7eb'; inp.style.borderRadius='12px';
-      const btn = document.createElement('button'); btn.className='btn-primary'; btn.textContent='Continue';
-      btn.onclick = ()=>{ state.user='known'; state.userInfo = inp.value || 'existing'; req('user').value='known'; req('userInfo').value=state.userInfo; render(); syncUrl(); toast('Marked as Known'); }
-      row.appendChild(inp); row.appendChild(btn); c.appendChild(row); return c;
-    }
-
-    function loyaltyCard(){
-      const c = sectionCard('Loyalty boost');
-      const email = parseEmail(state.userInfo);
-      const who = email || 'member';
-      const p = document.createElement('p'); p.innerHTML = `Welcome <b>${who}</b>. Earn <b>2× points</b> on ${state.industry==='FMCD'?'AMC add‑ons':'today\'s picks'} when you checkout in the next <b>24h</b>.`;
-      c.appendChild(p); const btn=document.createElement('button'); btn.className='btn-primary'; btn.textContent='Activate offer'; c.appendChild(btn); return c;
-    }
-
-    // ---------- Product rendering ----------------------------------------
-    function gridOf(list){ const grid=document.createElement('div'); grid.className='product-grid'; list.forEach((prod,i)=> grid.appendChild(productCard(prod,i))); return grid; }
-
-    function productCard(prod, i){
-      const card = document.createElement('div'); card.className='product';
-      const badge = document.createElement('div'); badge.className='badge'; badge.textContent = badgeText(prod, i); card.appendChild(badge);
-      const th = document.createElement('div'); th.className='p-thumb'; const img=document.createElement('img'); img.src=productImage(prod); img.alt=prod.name; th.appendChild(img); card.appendChild(th);
-      const body = document.createElement('div'); body.className='p-body';
-      const name = document.createElement('div'); name.style.fontWeight='800'; name.textContent = prod.name; body.appendChild(name);
-      const rupees = Math.max(199, Math.round(usdToInr(prod.usd))); // keep it realistic
-      const meta = document.createElement('div'); meta.className='muted'; meta.innerHTML = `${stars(prod.rating)} • ₹${formatINR(rupees)}`; body.appendChild(meta);
-      card.appendChild(body); return card;
-    }
-
-    function stars(r){ const full=Math.floor(r); const half=r-full>=.5; let s=''; for(let i=0;i<full;i++) s+='★'; if (half) s+='☆'; return s; }
-
-    function productImage(prod){
-      // lightweight SVG thumbnail themed by industry, with an icon inferred from tags
-      const t = THEMES[state.industry];
-      const icon = iconFor(prod.tags);
-      const bg1 = t.heroA, bg2 = t.heroB;
-      const txt = prod.code;
-      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='480' height='320'>
-        <defs>
-          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-            <stop offset='0%' stop-color='${bg1}'/>
-            <stop offset='100%' stop-color='${bg2}'/>
-          </linearGradient>
-        </defs>
-        <rect width='100%' height='100%' fill='url(#g)'/>
-        <text x='28' y='60' font-size='42' fill='white' font-family='sans-serif'>${icon}</text>
-        <text x='28' y='110' font-size='22' fill='white' opacity='.9' font-family='sans-serif'>${txt}</text>
-      </svg>`;
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-    }
-
-    function iconFor(tags){
-      const set = new Set(tags||[]);
-      if (set.has('cooling')) return '❄️';
-      if (set.has('appliance')) return '🧊';
-      if (set.has('kitchen')) return '🍳';
-      if (set.has('water')) return '💧';
-      if (set.has('laundry')) return '🧺';
-      if (set.has('cleaning')) return '🧹';
-      if (set.has('beauty')) return '💄';
-      if (set.has('nutrition')) return '🥤';
-      if (set.has('eco')) return '🌿';
-      if (set.has('fitness')) return '🧘';
-      if (set.has('device')) return '📟';
-      if (set.has('otc')) return '💊';
-      if (set.has('sleep')) return '😴';
-      if (set.has('apparel')) return '👕';
-      if (set.has('bags')) return '👜';
-      if (set.has('accessory')) return '⌚';
-      return '🛍️';
-    }
-
-    // ---------- Recommendation logic -------------------------------------
-    function primaryTitle(){
-      if (state.model==='static') return "Editor's picks";
-      if (state.model==='collections') return 'From this collection';
-      return 'Recommended for you';
-    }
-
-    function badgeText(prod, i){
-      switch(state.bias){
-        case 'price': return i===0? 'Best Value' : (prod.usd<=medianUsd()? 'Value' : '');
-        case 'rating': return prod.rating>=4.6? 'Top Rated' : '';
-        case 'affinity': return (prod.tags||[]).some(t=> affinityTags().includes(t))? 'High Affinity' : '';
+      if (CONFIG.userStage === 'dormant') {
+        return {
+          gradient: 'background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);',
+          title: `${CONFIG.userEmail ? CONFIG.userEmail.split('@')[0] + ', ' : ''}Special Rewards Waiting!`,
+          subtitle: 'Get 25% off on your favorite categories',
+          cta: 'Unlock Rewards'
+        };
       }
-      return '';
-    }
 
-    function medianUsd(){ const arr = CATALOG[state.industry].map(p=>p.usd).sort((a,b)=>a-b); const mid = Math.floor(arr.length/2); return arr.length%2? arr[mid] : (arr[mid-1]+arr[mid])/2; }
-
-    function subCopy(){
-      if (state.model==='static') return 'Curated by our merch team for this season.';
-      if (state.model==='collections') return 'Explore themed sets tailored to your industry.';
-      if (state.bias==='price') return 'Sorted for maximum value.';
-      if (state.bias==='rating') return 'Prioritizing trust with top-rated picks.';
-      return 'Learning from behavior to boost relevance.';
-    }
-
-    function affinityTags(){
-      const base = {Retail:['athleisure','accessory','premium'], FMCD:['cooling','kitchen','appliance'], D2C:['beauty','nutrition','eco'], Healthcare:['device','homecare','otc']}[state.industry]||[];
-      if (state.user==='returning') base.push('trending');
-      if (state.user==='known') base.push(hashToTag(state.userInfo));
-      return base;
-    }
-
-    function score(prod){
-      if (state.bias==='price') return -prod.usd + prod.rating*2; // cheaper first
-      if (state.bias==='rating') return prod.rating*10 - prod.usd*0.05;
-      if (state.bias==='affinity'){
-        const hit = (prod.tags||[]).reduce((acc,t)=> acc + (affinityTags().includes(t)?1:0), 0);
-        return hit*10 + prod.rating*2 - prod.usd*0.02;
+      if (CONFIG.browseBehavior === 'cart') {
+        return {
+          gradient: 'background: linear-gradient(135deg, #10B981 0%, #059669 100%);',
+          title: 'Your Cart Misses You!',
+          subtitle: 'Complete your purchase and get free shipping',
+          cta: 'View Cart'
+        };
       }
-      return prod.rating;
-    }
 
-    function productsForState(){
-      const src = CATALOG[state.industry].slice();
-      if (state.model==='static'){
-        // editorial order, but still nudge by rule bias for clarity
-        return src.sort((a,b)=> score(b)-score(a)).slice(0,6);
+      if (CONFIG.purchaseCount > 5) {
+        return {
+          gradient: 'background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);',
+          title: `VIP Member Exclusive: ${CONFIG.userEmail ? CONFIG.userEmail.split('@')[0] : 'Welcome Back'}`,
+          subtitle: 'New arrivals in your favorite categories',
+          cta: 'Shop VIP Deals'
+        };
       }
-      // dynamic/collections: behavior- & rule-aware sort
-      const sorted = src.sort((a,b)=> score(b)-score(a));
-      return sorted.slice(0,6);
-    }
 
-    function productsTrending(){
-      const src = CATALOG[state.industry].slice();
-      if (state.model==='static'){
-        // show universally trending (rating-weighted)
-        return src.sort((a,b)=> (b.rating - a.rating) || (a.usd-b.usd)).slice(0,3);
-      } else if (state.model==='dynamic'){
-        // user-context aware trending
-        if (state.user==='new') return src.sort((a,b)=> (b.rating*2 - a.rating*2) - (b.usd*0.02 - a.usd*0.02)).slice(0,3);
-        if (state.user==='returning') return boostByTag(src, 'trending').slice(0,3);
-        if (state.user==='known') return boostByTag(src, hashToTag(state.userInfo)).slice(0,3);
-      } else { // collections
-        // surface top item from each top collection
-        const tags = collectionTags(state.industry).slice(0,3);
-        return boostByAnyTag(src, tags).slice(0,3);
+      if (CONFIG.priceSensitivity === 'high') {
+        return {
+          gradient: 'background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);',
+          title: 'Mega Sale: Up to 60% Off!',
+          subtitle: 'Best deals on trending products',
+          cta: 'Grab Deals'
+        };
       }
-      return src.slice(0,3);
+
+      if (CONFIG.categoryAffinity !== 'none') {
+        const categoryNames = {
+          electronics: 'Tech Gadgets',
+          fashion: 'Fashion',
+          home: 'Home Essentials',
+          beauty: 'Beauty Products',
+          sports: 'Sports & Fitness'
+        };
+        return {
+          gradient: 'background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);',
+          title: `New in ${categoryNames[CONFIG.categoryAffinity]}`,
+          subtitle: 'Handpicked items based on your interests',
+          cta: 'Explore Now'
+        };
+      }
+
+      return defaults;
     }
 
-    function boostByTag(list, tag){ return list.slice().sort((a,b)=> ((b.tags||[]).includes(tag)?1:0) - ((a.tags||[]).includes(tag)?1:0) || score(b)-score(a)); }
-    function boostByAnyTag(list, tags){ return list.slice().sort((a,b)=> matchCount(b,tags)-matchCount(a,tags) || score(b)-score(a)); }
-    function matchCount(p,tags){ return (p.tags||[]).reduce((m,t)=> m + (tags.includes(t)?1:0), 0); }
-    function collectionTags(ind){
-      if (ind==='Retail') return ['premium','accessory','athleisure'];
-      if (ind==='FMCD') return ['cooling','kitchen','water'];
-      if (ind==='D2C') return ['beauty','nutrition','eco'];
-      return ['device','otc','homecare'];
+    function renderPromoBanners() {
+      const container = document.getElementById('promoBanners');
+      const banners = [];
+
+      if (CONFIG.personalizationLevel === 'none') {
+        container.innerHTML = '';
+        return;
+      }
+
+      if (CONFIG.browseBehavior === 'cart' && CONFIG.personalizationLevel !== 'none') {
+        banners.push({
+          class: 'banner-cart',
+          title: 'Complete Your Purchase',
+          text: 'Your cart has 3 items waiting. Checkout now for free shipping!',
+          cta: 'View Cart'
+        });
+      }
+
+      if (CONFIG.purchaseCount >= 3 && CONFIG.userStage !== 'churned') {
+        banners.push({
+          class: 'banner-loyalty',
+          title: 'Loyalty Rewards',
+          text: `You have 2,500 points. Redeem for instant discounts!`,
+          cta: 'View Rewards'
+        });
+      }
+
+      if (CONFIG.daysSinceVisit > 7 && CONFIG.userStage !== 'anonymous') {
+        banners.push({
+          class: 'banner-offer',
+          title: 'Welcome Back Offer',
+          text: 'Get 20% off on your next purchase - Valid for 24 hours',
+          cta: 'Activate Offer'
+        });
+      }
+
+      container.innerHTML = banners.map(b => `
+        <div class="promo-banner ${b.class}">
+          <div class="banner-content">
+            <h3>${b.title}</h3>
+            <p>${b.text}</p>
+          </div>
+          <button class="btn btn-primary">${b.cta}</button>
+        </div>
+      `).join('');
     }
 
-    // Hash user info → pseudo purchase tag (stable per string)
-    function hashToTag(s){ if(!s) return 'premium'; const h = Array.from(s).reduce((a,c)=> (a*31 + c.charCodeAt(0))>>>0, 7); const pool = ['premium','cooling','kitchen','beauty','nutrition','eco','device','otc','accessory','apparel']; return pool[h % pool.length]; }
+    function renderContentSections() {
+      const container = document.getElementById('contentSections');
+      const sections = getContentSections();
 
-    // ---------- Hero generation (unique per combo) ------------------------
-    function getHeroCopy(){
-      const email = parseEmail(state.userInfo);
-      const base = {
-        new: {t:`Welcome to ${state.brand}`, s:'Discover picks chosen for your industry.'},
-        returning: {t:`Welcome back to ${state.brand}`, s:'We saved your recent views and similar styles.'},
-        known: {t:`Hi ${email||'there'}`, s:'Your history powers smarter recommendations.'}
-      }[state.user];
-      const biasLine = {price:'Optimized for best value.', rating:'Top-rated first.', affinity:'Dialed to your affinity.'}[state.bias];
-      return {title: base.t, sub: base.s + ' ' + biasLine};
+      container.innerHTML = sections.map(section => `
+        <div class="content-section">
+          <div class="section-header">
+            <h2>${section.title}</h2>
+            ${section.personalized ? '<span class="personalization-badge">Personalized</span>' : ''}
+          </div>
+          <div class="product-grid">
+            ${section.products.map(renderProduct).join('')}
+          </div>
+        </div>
+      `).join('');
     }
 
-    function heroArtDataURL(key, theme){
-      // Simple abstract composition that varies by combo string
-      const seed = Array.from(key).reduce((a,c)=> (a*33 + c.charCodeAt(0))>>>0, 13);
-      const circles = Array.from({length:6}).map((_,i)=>{
-        const r = 18 + (seed>>(i*3) & 15) * 2;
-        const x = 40 + (seed>>(i*2) & 127);
-        const y = 80 + (seed>>(i*1) & 95);
-        const op = 0.2 + ((seed>>i)&7)/20;
-        return `<circle cx='${x*3}' cy='${y*2.6}' r='${r*2}' fill='${theme.flare}' opacity='${op}' />`;
-      }).join('');
-      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='900' height='500'>${circles}</svg>`;
-      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    function getContentSections() {
+      const products = PRODUCTS[CONFIG.industry] || PRODUCTS.retail;
+      const sections = [];
+
+      if (CONFIG.personalizationLevel === 'none') {
+        sections.push({
+          title: 'Featured Products',
+          products: products.slice(0, 4),
+          personalized: false
+        });
+        sections.push({
+          title: 'More Products',
+          products: products.slice(4, 8),
+          personalized: false
+        });
+        return sections;
+      }
+
+      const recommendedProducts = getRecommendedProducts(products);
+      sections.push({
+        title: getRecommendationTitle(),
+        products: recommendedProducts,
+        personalized: true
+      });
+
+      if (CONFIG.browseBehavior === 'research') {
+        const topRated = [...products].sort((a, b) => b.rating - a.rating).slice(0, 4);
+        sections.push({
+          title: 'Top Rated Products',
+          products: topRated,
+          personalized: true
+        });
+      }
+
+      if (CONFIG.categoryAffinity !== 'none') {
+        const categoryProducts = products.filter(p => p.category === CONFIG.categoryAffinity).slice(0, 4);
+        if (categoryProducts.length > 0) {
+          sections.push({
+            title: `More in ${CONFIG.categoryAffinity.charAt(0).toUpperCase() + CONFIG.categoryAffinity.slice(1)}`,
+            products: categoryProducts,
+            personalized: true
+          });
+        }
+      }
+
+      const trending = products.filter(p => p.tags.includes('trending')).slice(0, 4);
+      if (trending.length > 0) {
+        sections.push({
+          title: 'Trending Now',
+          products: trending,
+          personalized: false
+        });
+      }
+
+      return sections;
     }
 
-    // ---------- Explanations ---------------------------------------------
-    function renderWhy(){
-      const ul = req('whyList'); ul.innerHTML='';
-      const bullets = [];
-      bullets.push(`Theme = ${state.industry} palette, banner varies per combo.`);
-      if (state.model==='collections') bullets.push('Showing curated collections + boosted items from collection tags.');
-      if (state.model==='dynamic') bullets.push('Dynamic re-ordering by behavior & rule bias.');
-      if (state.model==='static') bullets.push('Editorial list with subtle rule biasing.');
-      if (state.user==='new') bullets.push('New user: broader trending + capture prompt.');
-      if (state.user==='returning') bullets.push('Returning: surfaces recently viewed and lookalikes.');
-      if (state.user==='known') bullets.push('Known: loyalty nudge and boosts based on past purchase signature.');
-      bullets.push({price:'Rule: value-first', rating:'Rule: rating-first', affinity:'Rule: affinity-first'}[state.bias]);
-      bullets.forEach(b=>{ const li=document.createElement('li'); li.textContent=b; ul.appendChild(li); })
+    function getRecommendationTitle() {
+      if (CONFIG.recoAlgo === 'trending') return 'Trending Products';
+      if (CONFIG.recoAlgo === 'affinity') return 'Based on Your Interests';
+      if (CONFIG.recoAlgo === 'collaborative') return 'Customers Like You Bought';
+      if (CONFIG.recoAlgo === 'content') return 'Similar to What You Viewed';
+      return 'Recommended for You';
     }
 
-    function renderPlays(){ const host=req('plays'); host.innerHTML=''; (INDUSTRY_PLAYS[state.industry]||[]).forEach(t=>{ const c=document.createElement('div'); c.className='chip'; c.textContent=t; host.appendChild(c); }); }
+    function getRecommendedProducts(products) {
+      let scored = products.map(p => ({ ...p, score: 0 }));
 
-    // ---------- URL & helpers --------------------------------------------
-    function reset(){ Object.assign(state, {industry:'Retail', model:'dynamic', bias:'affinity', user:'new', brand:'Acme', userInfo:''}); req('industry').value=state.industry; req('model').value=state.model; req('bias').value=state.bias; req('user').value=state.user; req('brand').value=state.brand; req('userInfo').value=state.userInfo; render(); syncUrl(); }
-    function syncUrl(){ const params=new URLSearchParams(); for(const[k,v] of Object.entries(state)){ if(String(v||'').length) params.set(k,v); } const url=location.pathname+'?'+params.toString(); history.replaceState(null,'',url); }
-    async function copyLink(){ try{ await navigator.clipboard.writeText(location.href); toast('Link copied'); }catch(e){ alert('Link: '+location.href); } }
-    function toast(msg){ const n=document.createElement('div'); n.textContent=msg; n.style.cssText='position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:10px 14px; border-radius:999px; box-shadow:var(--shadow); z-index:50;'; document.body.appendChild(n); setTimeout(()=> n.remove(), 1500); }
+      if (CONFIG.categoryAffinity !== 'none') {
+        scored = scored.map(p => ({
+          ...p,
+          score: p.score + (p.category === CONFIG.categoryAffinity ? 50 : 0)
+        }));
+      }
 
-    // ---------- Self-tests ------------------------------------------------
-    function runTests(){
-      const out=req('testResults'); out.innerHTML=''; const results=[]; function assert(name,fn){ try{ fn(); results.push(['pass',name]); }catch(e){ results.push(['fail', name+` → ${e.message}`]); } }
-      // T1: Essentials exist
-      assert('Elements present', ()=>{ ['topLogo','siteLogo','brandName','industryPill','heroTitle','heroSub','modules','whyList','plays','heroArt'].forEach(id=> req(id)); });
-      // T2: Distinct banner for two different combos
-      assert('Banner changes across combos', ()=>{ Object.assign(state,{industry:'Retail',model:'dynamic',bias:'affinity',user:'new'}); render(); const a=req('heroArt').src; Object.assign(state,{industry:'FMCD',model:'static',bias:'price',user:'known'}); render(); const b=req('heroArt').src; if (a===b) throw new Error('Hero art identical'); });
-      // T3: INR currency visible
-      assert('Prices show INR', ()=>{ const text=req('modules').innerText; if (!/₹\d/.test(text)) throw new Error('No INR symbol'); });
-      // T4: Known uses email from User Info
-      assert('Known user picks email', ()=>{ Object.assign(state,{user:'known', userInfo:'vip@example.com'}); render(); if (!req('heroTitle').textContent.toLowerCase().includes('vip@example.com')) throw new Error('Email not used'); });
-      // T5: Render all combos without throwing (sampled to keep it fast)
-      assert('Render sampled combos', ()=>{ const inds=['Retail','FMCD']; const models=['static','dynamic','collections']; const biases=['price','rating','affinity']; const users=['new','returning','known']; for(const i of inds){ for(const m of models){ for(const b of biases){ for(const u of users){ Object.assign(state,{industry:i, model:m, bias:b, user:u}); render(); }}}} });
-      results.forEach(([status,msg])=>{ const li=document.createElement('li'); li.textContent=`${status.toUpperCase()} — ${msg}`; li.style.color=status==='pass'? '#065f46':'#B91C1C'; out.appendChild(li); }); toast(`${results.filter(r=>r[0]==='pass').length}/${results.length} tests passed`);
+      if (CONFIG.priceSensitivity === 'high') {
+        scored = scored.map(p => ({
+          ...p,
+          score: p.score + (p.tags.includes('sale') || p.tags.includes('value') ? 30 : 0) - (p.price / 100)
+        }));
+      } else if (CONFIG.priceSensitivity === 'low') {
+        scored = scored.map(p => ({
+          ...p,
+          score: p.score + (p.tags.includes('premium') ? 40 : 0) + (p.price / 200)
+        }));
+      }
+
+      if (CONFIG.recoAlgo === 'trending') {
+        scored = scored.map(p => ({
+          ...p,
+          score: p.score + (p.tags.includes('trending') ? 60 : 0)
+        }));
+      }
+
+      scored = scored.map(p => ({
+        ...p,
+        score: p.score + (p.rating * 10) + Math.random() * 20
+      }));
+
+      return scored.sort((a, b) => b.score - a.score).slice(0, 4);
     }
+
+    function renderProduct(product) {
+      const badge = product.tags[0] || '';
+      const badgeClass = badge ? `badge-${badge}` : '';
+
+      return `
+        <div class="product-card">
+          ${badge ? `<div class="product-badge ${badgeClass}">${badge}</div>` : ''}
+          <div class="product-image">🎁</div>
+          <div class="product-info">
+            <div class="product-name">${product.name}</div>
+            <div class="product-price">₹${product.price.toLocaleString('en-IN')}</div>
+            <div class="product-rating">⭐ ${product.rating} (${Math.floor(Math.random() * 500 + 100)} reviews)</div>
+            <div class="product-meta">
+              ${product.tags.slice(1).map(tag => `<span class="meta-tag">${tag}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAnalytics() {
+      renderUserSegment();
+      renderEngagementScore();
+      renderPropensityScores();
+      renderActivePersonalizations();
+      renderPredictedMetrics();
+    }
+
+    function renderUserSegment() {
+      const segmentNames = {
+        anonymous: 'Anonymous Visitor',
+        new: 'New User',
+        active: 'Active Customer',
+        engaged: 'Highly Engaged',
+        dormant: 'At-Risk',
+        churned: 'Churned User'
+      };
+      document.getElementById('userSegment').textContent = segmentNames[CONFIG.userStage];
+    }
+
+    function renderEngagementScore() {
+      let score = 0;
+      score += CONFIG.sessionCount * 5;
+      score += CONFIG.purchaseCount * 15;
+      score += Math.max(0, (30 - CONFIG.daysSinceVisit) * 2);
+      score += (CONFIG.ltv / 100);
+      score = Math.min(100, Math.round(score));
+
+      document.getElementById('engagementScore').textContent = score;
+      document.getElementById('engagementBar').style.width = `${score}%`;
+    }
+
+    function renderPropensityScores() {
+      const propensities = calculatePropensities();
+      const html = propensities.map(p => `
+        <li class="propensity-item">
+          <span class="propensity-label">${p.label}</span>
+          <span class="propensity-score ${p.class}">${p.score}%</span>
+        </li>
+      `).join('');
+      document.getElementById('propensityList').innerHTML = html;
+    }
+
+    function calculatePropensities() {
+      const propensities = [];
+
+      let purchaseScore = 30;
+      if (CONFIG.userStage === 'engaged') purchaseScore = 85;
+      else if (CONFIG.userStage === 'active') purchaseScore = 65;
+      else if (CONFIG.browseBehavior === 'focused') purchaseScore = 70;
+      else if (CONFIG.browseBehavior === 'cart') purchaseScore = 80;
+      else if (CONFIG.userStage === 'churned') purchaseScore = 15;
+      propensities.push({
+        label: 'Purchase Propensity',
+        score: purchaseScore,
+        class: purchaseScore >= 70 ? 'score-high' : purchaseScore >= 40 ? 'score-medium' : 'score-low'
+      });
+
+      let churnScore = 20;
+      if (CONFIG.userStage === 'dormant') churnScore = 65;
+      else if (CONFIG.userStage === 'churned') churnScore = 90;
+      else if (CONFIG.daysSinceVisit > 30) churnScore = 55;
+      else if (CONFIG.userStage === 'engaged') churnScore = 10;
+      propensities.push({
+        label: 'Churn Risk',
+        score: churnScore,
+        class: churnScore >= 60 ? 'score-high' : churnScore >= 30 ? 'score-medium' : 'score-low'
+      });
+
+      let upsellScore = 25;
+      if (CONFIG.purchaseCount > 5) upsellScore = 75;
+      else if (CONFIG.priceSensitivity === 'low') upsellScore = 80;
+      else if (CONFIG.ltv > 10000) upsellScore = 85;
+      propensities.push({
+        label: 'Upsell Potential',
+        score: upsellScore,
+        class: upsellScore >= 70 ? 'score-high' : upsellScore >= 40 ? 'score-medium' : 'score-low'
+      });
+
+      return propensities;
+    }
+
+    function renderActivePersonalizations() {
+      const personalizations = [];
+
+      if (CONFIG.personalizationLevel === 'none') {
+        document.getElementById('activePersonalizations').innerHTML = '<p style="font-size: 13px; color: var(--text-muted);">No personalization active</p>';
+        return;
+      }
+
+      personalizations.push('Dynamic Hero Banner');
+      personalizations.push(`${getRecommendationTitle()}`);
+
+      if (CONFIG.browseBehavior === 'cart') personalizations.push('Cart Recovery Banner');
+      if (CONFIG.purchaseCount >= 3) personalizations.push('Loyalty Rewards Widget');
+      if (CONFIG.categoryAffinity !== 'none') personalizations.push('Category-Based Filtering');
+      if (CONFIG.priceSensitivity === 'high') personalizations.push('Deal Highlighting');
+
+      const html = personalizations.map(p => `
+        <div class="active-personalization">✓ ${p}</div>
+      `).join('');
+
+      document.getElementById('activePersonalizations').innerHTML = html;
+    }
+
+    function renderPredictedMetrics() {
+      const metrics = [];
+
+      const cvr = CONFIG.userStage === 'engaged' ? 8.5 : CONFIG.userStage === 'active' ? 4.2 : 1.8;
+      metrics.push({
+        label: 'Predicted CVR',
+        value: `${cvr}%`,
+        change: CONFIG.personalizationLevel !== 'none' ? '+2.3%' : null,
+        positive: true
+      });
+
+      const aov = CONFIG.priceSensitivity === 'low' ? 4500 : CONFIG.priceSensitivity === 'medium' ? 2800 : 1500;
+      metrics.push({
+        label: 'Expected AOV',
+        value: `₹${aov.toLocaleString('en-IN')}`,
+        change: CONFIG.personalizationLevel === 'predictive' ? '+15%' : null,
+        positive: true
+      });
+
+      const html = metrics.map(m => `
+        <div class="metric-card">
+          <div class="metric-label">${m.label}</div>
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+            <div style="font-size: 18px; font-weight: 700;">${m.value}</div>
+            ${m.change ? `<div class="metric-change ${m.positive ? 'positive' : 'negative'}">${m.change}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('predictedMetrics').innerHTML = html;
+    }
+
+    const triggerHistory = [];
+    function logTrigger(event, description) {
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      triggerHistory.unshift({ time, event, description });
+      if (triggerHistory.length > 5) triggerHistory.pop();
+
+      const html = triggerHistory.map(t => `
+        <div class="trigger-log">
+          <div class="trigger-time">${t.time}</div>
+          <div><strong>${t.event}</strong></div>
+          <div style="font-size: 11px; color: var(--text-muted);">${t.description}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('triggerLog').innerHTML = html || '<p style="font-size: 13px; color: var(--text-muted);">No recent triggers</p>';
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
